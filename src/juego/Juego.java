@@ -1,48 +1,48 @@
 package juego;
 
-
-import java.awt.Color;
-
 import entorno.Entorno;
 import entorno.InterfaceJuego;
 
-public class Juego extends InterfaceJuego
-{
-	// El objeto Entorno que controla el tiempo y otros
-	private Entorno entorno;
-	
-	// Variables y métodos propios de cada grupo
-	// ...
-	
-	Juego()
-	{
-		// Inicializa el objeto entorno
-		this.entorno = new Entorno(this, "Proyecto para TP", 800, 600);
-		
-		// Inicializar lo que haga falta para el juego
-		// ...
+public class Juego extends InterfaceJuego {
+    private Entorno entorno;
+    private MapaCiudad mapa;
+    private HUD hud;
+    private int ticks;
 
-		// Inicia el juego!
-		this.entorno.iniciar();
-	}
+    public Juego() {
+        // Inicializar el Entorno de la UNGS
+        this.entorno = new Entorno(this, "Repartidor - TP P1", 800, 700);
+        
+        // Inicializar clases del juego
+        this.mapa = new MapaCiudad();
+        this.hud = new HUD();
+        this.ticks = 0;
 
-	/**
-	 * Durante el juego, el método tick() será ejecutado en cada instante y 
-	 * por lo tanto es el método más importante de esta clase. Aquí se debe 
-	 * actualizar el estado interno del juego para simular el paso del tiempo 
-	 * (ver el enunciado del TP para mayor detalle).
-	 */
-	public void tick()
-	{
-		// Procesamiento de un instante de tiempo
-		// ...
-		
-	}
-	
+        // Iniciar el juego
+        this.entorno.iniciar();
+    }
 
-	@SuppressWarnings("unused")
-	public static void main(String[] args)
-	{
-		Juego juego = new Juego();
-	}
+    @Override
+    public void tick() {
+        this.dibujar();
+    }
+
+    public void dibujar() {
+        this.ticks++;
+        
+        // 1. Dibujar el mapa de la ciudad
+        if (this.mapa != null) {
+            this.mapa.dibujar(this.entorno);
+        }
+        
+        // 2. Dibujar la barra superior (HUD)
+        if (this.hud != null) {
+            this.hud.actualizar(this.ticks, 3, 0, 0, "Camino al negocio");
+            this.hud.dibujar(this.entorno);
+        }
+    }
+
+    public static void main(String[] args) {
+        Juego juego = new Juego();
+    }
 }
