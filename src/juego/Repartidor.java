@@ -71,7 +71,6 @@ public class Repartidor<URL> {
 		}
 		catch(Exception e)
 		{
-			System.out.println("No se pudo cargar la imagen");
 			return null;
 		}
 	}

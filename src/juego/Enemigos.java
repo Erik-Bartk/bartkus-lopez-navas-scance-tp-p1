@@ -33,7 +33,7 @@ public class Enemigos {
 		if(this.y <= LimiteInferior || this.y >= LimiteSuperior) {
 			this.moviendoArriba_Abajo =! this.moviendoArriba_Abajo;
 		
-	}
+		}
 	}
 
 	public static void main(String[] args) {
