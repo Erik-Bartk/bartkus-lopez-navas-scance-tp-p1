@@ -103,7 +103,7 @@ public class Repartidor<URL> {
 			return 0;
 		}
 		else {
-			return imagen.getHeight()*this.escala + this.escala;
+			return imagen.getHeight()*this.escala;
 		}
 	}
 
