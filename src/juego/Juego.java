@@ -17,6 +17,7 @@ public class Juego extends InterfaceJuego {
     private List<Bomba> listaBombas;
     
     private int ticks;
+    private int cooldownDaño = 0; // Control para no restar vidas de golpe
 
     public Juego() {
         // Inicializar el Entorno de la UNGS
@@ -47,6 +48,11 @@ public class Juego extends InterfaceJuego {
 
     @Override
     public void tick() {
+        // Reducir el cooldown de daño en cada tick si es mayor a 0
+        if (cooldownDaño > 0) {
+            cooldownDaño--;
+        }
+
         // Movimiento del jugador con el teclado
         if (entorno.estaPresionada(entorno.TECLA_ARRIBA)) {
             this.rapi.MoverseArriba();
@@ -70,15 +76,40 @@ public class Juego extends InterfaceJuego {
             e.mover();
             e.rebotarEnBordesLaterales(50, 750);
             e.rebotarEnBordesSuperiorInferior(80, 650);
+            
+            // --- COLISIÓN REPARTIDOR vs ENEMIGO ---
+            if (cooldownDaño == 0 && hayColision(rapi.getX(), rapi.getY(), rapi.getAncho(), rapi.getAlto(),
+                                                e.getX(), e.getY(), e.getAncho(), e.getAlto())) {
+                rapi.setVida(rapi.getVida() - 1);
+                cooldownDaño = 45; // Espera 45 ticks (aprox. 3/4 de segundo) para volver a recibir daño
+                System.out.println("¡Colisión con enemigo! Vidas restantes: " + rapi.getVida());
+            }
         }
 
         // Actualizar el estado de las bombas
         for (Bomba b : listaBombas) {
             b.actualizar();
+            
+            // --- COLISIÓN REPARTIDOR vs BOMBA (si está activa) ---
+            if (b.isActiva() && cooldownDaño == 0 && hayColision(rapi.getX(), rapi.getY(), rapi.getAncho(), rapi.getAlto(),
+                                                                b.getX(), b.getY(), b.getAncho(), b.getAlto())) {
+                rapi.setVida(rapi.getVida() - 1);
+                b.desactivar(); // Desactiva la bomba para que no baje vida infinitamente
+                cooldownDaño = 45;
+                System.out.println("¡Chocaste una bomba! Vidas restantes: " + rapi.getVida());
+            }
         }
 
         // Llamar al dibujado general
         this.dibujar();
+    }
+
+    // Método auxiliar de colisión por rectángulos
+    public static boolean hayColision(double x1, double y1, double ancho1, double alto1,
+                                      double x2, double y2, double ancho2, double alto2) {
+        boolean colisionX = Math.abs(x1 - x2) < (ancho1 + ancho2) / 2;
+        boolean colisionY = Math.abs(y1 - y2) < (alto1 + alto2) / 2;
+        return colisionX && colisionY;
     }
 
     public void dibujar() {
