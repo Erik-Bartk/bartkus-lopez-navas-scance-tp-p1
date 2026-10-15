@@ -1,6 +1,8 @@
 package juego;
 
 import java.util.Random;
+import java.awt.Color;
+import entorno.Entorno;
 
 public class Enemigos {
 
@@ -68,6 +70,9 @@ public class Enemigos {
 		this.y = y;
 		this.velocidad = velocidad;
 		this.Movrandom();
+	}
+	public void dibujar(Entorno entorno) {
+	    entorno.dibujarRectangulo(this.x, this.y, 30, 30, 0, Color.RED);
 	}
 
 	public static void main(String[] args) {

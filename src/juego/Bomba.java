@@ -1,4 +1,6 @@
 package juego;
+import java.awt.Color;
+import entorno.Entorno;
 
 public class Bomba {
 
@@ -33,6 +35,11 @@ public class Bomba {
 	public void explotar() {
 		System.out.println("La bomba exploto");
 	
+	}
+	public void dibujar(Entorno entorno) {
+	    if (this.activa) {
+	        entorno.dibujarRectangulo(this.x, this.y, 30, 30, 0, Color.MAGENTA);
+	    }
 	}
 
 }

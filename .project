@@ -14,11 +14,4 @@
 	<natures>
 		<nature>org.eclipse.jdt.core.javanature</nature>
 	</natures>
-	<linkedResources>
-		<link>
-			<name>src/juego/repartidor.png</name>
-			<type>1</type>
-			<location>C:/Users/RYZEN/Downloads/repartidor.png</location>
-		</link>
-	</linkedResources>
 </projectDescription>
