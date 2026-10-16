@@ -11,11 +11,15 @@ public class Juego extends InterfaceJuego {
     private MapaCiudad mapa;
     private HUD hud;
     private Repartidor rapi;
+<<<<<<< Updated upstream
     
     // Listas para manejar múltiples enemigos y bombas
     private List<Enemigos> listaEnemigos;
     private List<Bomba> listaBombas;
     
+=======
+    private Proyectil proyectiles;
+>>>>>>> Stashed changes
     private int ticks;
     private int cooldownDaño = 0; // Control para no restar vidas de golpe
 
@@ -23,8 +27,18 @@ public class Juego extends InterfaceJuego {
         // Inicializar el Entorno de la UNGS
         this.entorno = new Entorno(this, "Repartidor - TP P1", 800, 700);
         
+<<<<<<< Updated upstream
         // Inicializa la clase jugador
         this.rapi = new Repartidor(750, 400, 0, 0.08, 3.5, 5);
+=======
+        
+        //Inicializa la clase jugador
+        //this.rapi = new Repartidor(750, 400, 0, 0.08, 3.5, 5);
+        this.rapi = new Repartidor (750, 400, 20, 20, 4, 5);
+        
+        //Inicializa el Proyecyil cuando sea llamado en la funcion;
+        this.proyectiles = new Proyectil (this.rapi.x,this.rapi.y,10,4);
+>>>>>>> Stashed changes
         
         // Inicializar clases del juego
         this.mapa = new MapaCiudad();
@@ -46,6 +60,7 @@ public class Juego extends InterfaceJuego {
         this.entorno.iniciar();
     }
 
+    
     @Override
     public void tick() {
         // Reducir el cooldown de daño en cada tick si es mayor a 0
@@ -102,6 +117,7 @@ public class Juego extends InterfaceJuego {
 
         // Llamar al dibujado general
         this.dibujar();
+<<<<<<< Updated upstream
     }
 
     // Método auxiliar de colisión por rectángulos
@@ -111,6 +127,58 @@ public class Juego extends InterfaceJuego {
         boolean colisionY = Math.abs(y1 - y2) < (alto1 + alto2) / 2;
         return colisionX && colisionY;
     }
+=======
+        
+        
+        //movimiento del jugador
+        if (entorno.estaPresionada(entorno.TECLA_ARRIBA)){
+        	this.rapi.MoverseArriba();
+        }
+        
+        if (entorno.estaPresionada(entorno.TECLA_ABAJO)){
+        	this.rapi.MoverseAbajo();
+        }
+        
+        if (entorno.estaPresionada(entorno.TECLA_DERECHA)){
+        	this.rapi.MoverseDerecha();
+        }
+        
+        if (entorno.estaPresionada(entorno.TECLA_IZQUIERDA)){
+        	this.rapi.MoverseIzquierda();
+        }
+        
+        
+        
+        //movimiento dentro del mapa
+    	if (this.rapi.getX() < 0 + this.rapi.getAncho()/2) {
+            	this.rapi.x = 0 + this.rapi.getAncho()/2;
+            }
+            
+            else if(this.rapi.getX() >= 800 - this.rapi.getAncho() /2) {
+            	this.rapi.x = 800 - this.rapi.getAncho() /2;	
+            }
+            
+            if (this.rapi.getY() <= 50 + this.rapi.getAlto() /2 ) {
+            	this.rapi.y = 50 + this.rapi.getAlto() /2;
+            }
+            
+            else if(this.rapi.getY() >= 700 - this.rapi.getAlto() /2) {
+            	this.rapi.y = 700 - this.rapi.getAlto() /2;
+            }
+    	
+            
+        if (entorno.sePresionoBoton(entorno.BOTON_IZQUIERDO)) {
+        	if (this.proyectiles != null) {
+            	this.proyectiles.dibujarProyectil(entorno);
+        	}
+        }
+            
+   }
+      
+  
+    
+    
+>>>>>>> Stashed changes
 
     public void dibujar() {
         this.ticks++;
@@ -140,6 +208,15 @@ public class Juego extends InterfaceJuego {
             this.hud.actualizar(this.ticks, (int)this.rapi.getVida(), 0, 0, "Camino al negocio");
             this.hud.dibujar(this.entorno);
         }
+<<<<<<< Updated upstream
+=======
+        
+        
+        if (this.rapi != null) {
+        	this.rapi.dibujarRepartidor(entorno);
+        }
+       	
+>>>>>>> Stashed changes
     }
 
     public static void main(String[] args) {
