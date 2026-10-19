@@ -30,6 +30,7 @@ public class Juego extends InterfaceJuego {
 	int minutos;
 	int segundos;
 	String miFont= "Arial";
+	
     
     
     
@@ -88,15 +89,45 @@ public class Juego extends InterfaceJuego {
         // Movimiento del jugador con el teclado
         if (entorno.estaPresionada(entorno.TECLA_ARRIBA)) {
             this.rapi.MoverseArriba();
+            
+            for (Cuadra cuadras : mapa.getCuadras()) {
+                if (hayColision(rapi.getX(), rapi.getY(), rapi.getAncho(), rapi.getAlto(), cuadras.getX(), cuadras.getY(), cuadras.getAncho(), cuadras.getAlto())) {
+                    rapi.MoverseAbajo(); // Deshace yendo abajo
+                   
+                }
+            }    
         }
+        
         if (entorno.estaPresionada(entorno.TECLA_ABAJO)) {
             this.rapi.MoverseAbajo();
+            
+            for (Cuadra cuadras : mapa.getCuadras()) {
+                if (hayColision(rapi.getX(), rapi.getY(), rapi.getAncho(), rapi.getAlto(), cuadras.getX(), cuadras.getY(), cuadras.getAncho(), cuadras.getAlto())) {
+                    rapi.MoverseArriba(); // Deshace yendo arriba
+
+                }
+            }
         }
+                
         if (entorno.estaPresionada(entorno.TECLA_DERECHA)) {
             this.rapi.MoverseDerecha();
+            
+            for (Cuadra cuadras : mapa.getCuadras()) {
+                if (hayColision(rapi.getX(), rapi.getY(), rapi.getAncho(), rapi.getAlto(), cuadras.getX(), cuadras.getY(), cuadras.getAncho(), cuadras.getAlto())) {
+                    rapi.MoverseIzquierda(); // 3. ¡Chocó! Deshacemos el movimiento inmediatamente
+ 
+                }
+            }
         }
+        
         if (entorno.estaPresionada(entorno.TECLA_IZQUIERDA)) {
             this.rapi.MoverseIzquierda();
+            
+            for (Cuadra cuadras : mapa.getCuadras()) {
+                if (hayColision(rapi.getX(), rapi.getY(), rapi.getAncho(), rapi.getAlto(), cuadras.getX(), cuadras.getY(), cuadras.getAncho(), cuadras.getAlto())) {
+                    rapi.MoverseDerecha(); // Deshace yendo a la derecha
+                }
+            }
         }
         
         
@@ -150,9 +181,17 @@ public class Juego extends InterfaceJuego {
             }
         }
 
-       
         
+        /*
+        for(Cuadra cuadras : mapa.getCuadras()) {
+        	if (hayColision(rapi.getX(), rapi.getY(), rapi.getAncho(), rapi.getAlto(), cuadras.getX(), cuadras.getY(), cuadras.getAncho(), cuadras.getAlto() )) {
+        		System.out.println("CHOCO PARED");
+        		this.rapi.x -= cuadras.getAncho()/2 + cuadras.getX();
+        	}
+        }
+        */
         
+
         // Llamar al dibujado general
         this.dibujar();
     	}
@@ -167,7 +206,7 @@ public class Juego extends InterfaceJuego {
     	return colisionX && colisionY;
     	}
 
-      
+   
   
 
 
@@ -206,7 +245,6 @@ public class Juego extends InterfaceJuego {
         
         
         //6. Dibuja el proyectil cuando se lo invoca
-        
         if (this.proyectiles[0] == null && entorno.sePresionoBoton(entorno.BOTON_IZQUIERDO)) {
         	String direccion = "DERECHA"; // Dirección por defecto si no toca nada
         	
@@ -237,20 +275,30 @@ public class Juego extends InterfaceJuego {
        
         
     	//7. dibuja el TIEMPO DEL JUEGO en el HUD
-    	int sec= entorno.tiempo()/1000;
+        int tiempoInicial = 90000;
+        
+        int tiempoRestante = tiempoInicial - entorno.tiempo();
+        
+        if (tiempoRestante < 0) {
+        	tiempoRestante = 0;
+        }
+        
+    	int sec= tiempoRestante / 1000;
 		segundos= sec%60;
+		
 		int min = sec/60;
 		minutos= min%60;
-		int hor= min/60;
-		horas = hor%60;
+		
 		
 		Color miColor = new Color (100, 100, 100);
 		
-		entorno.cambiarFont("Arial", 25, miColor, entorno.NEGRITA);
-		entorno.escribirTexto("TIEMPO: "+minutos+":"+ segundos  , 5, 35);
-    	
+		entorno.cambiarFont("OCR A Extended", 25, miColor, entorno.NEGRITA);
+		entorno.escribirTexto("TIEMPO: "+ minutos +":"+ segundos  , 5, 35);
+	
+		entorno.cambiarFont("OCR A Extended", 20, Color.RED, entorno.NEGRITA);
+		entorno.escribirTexto("Vidas: " + rapi.getVida(), 650, 35);
+		    
 		
-        
     }
 
     public static void main(String[] args) {

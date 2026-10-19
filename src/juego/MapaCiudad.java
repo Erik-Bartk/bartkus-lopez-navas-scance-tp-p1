@@ -47,4 +47,9 @@ public class MapaCiudad {
     }
     
     
+    public List<Cuadra> getCuadras(){
+    	return cuadras;
+    }
+    
+    
 }
