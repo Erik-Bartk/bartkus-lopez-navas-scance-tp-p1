@@ -4,7 +4,7 @@ import java.awt.Color;
 import entorno.Entorno;
 
 public class Bomba {
-<<<<<<< Updated upstream
+//<<<<<<< Updated upstream
     private double x;
     private double y;
     private int tiempo;
@@ -69,6 +69,8 @@ public class Bomba {
     public void desactivar() {
         this.activa = false;
     }
+    
+/*
 =======
 	
 	private double x;
@@ -102,4 +104,7 @@ public class Bomba {
 	}
 	
 >>>>>>> Stashed changes
+
+*/
+    
 }

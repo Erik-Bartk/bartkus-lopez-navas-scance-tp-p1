@@ -10,8 +10,8 @@ public class Proyectil {
 	double y;
 	double radio;
 	double velocidad;
+	String direccion;
 	boolean activo = false;
-	
 	
 
 	public double getX() {
@@ -39,8 +39,8 @@ public class Proyectil {
 	}
 
 
-	public void setRadio(double radio) {
-		this.radio = radio;
+	public double setRadio() {
+		return radio;
 		
 	}
 
@@ -50,29 +50,46 @@ public class Proyectil {
 	}
 
 
-	public void setVelocidad(double velocidad) {
-		this.velocidad = velocidad;
+	public double setVelocidad() {
+		return velocidad;
 	}
 
 	
 	
-	public Proyectil (double x, double y, double radio, double velocidad) {
+	public Proyectil (double x, double y, double radio, double velocidad, String direccion) {
 		
 		this.x = x;
 		this.y= y;
 		this.radio = radio;
 		this.velocidad = velocidad;
-		
+		this.direccion = direccion;
 	}
 	
 	
 
 	public void dibujarProyectil(Entorno entorno) {
-		if (activo = true) {
-			entorno.dibujarCirculo(x, y, radio, Color.GRAY);
-		}
+		entorno.dibujarCirculo(x, y, radio, Color.GRAY);
 	}
+
 	
+	
+	public void mover() {
+		 
+	    if (this.direccion.equals("DERECHA")) {   
+	    	this.x += velocidad;
+	    }
+	    if (this.direccion.equals("IZQUIERDA")) {
+	    	this.x -= velocidad;
+	    }
+	    if (this.direccion.equals("ARRIBA")) {
+	    	this.y -= velocidad;
+	    }
+	    if (this.direccion.equals("ABAJO")) {
+	    	this.y += velocidad;
+	    }
+	}
+	 
+	 
 	
 	/*
 	public void movimientoProyectil(Entorno entorno) {
@@ -119,9 +136,8 @@ public class Proyectil {
 	}
 	*/
 	
-	
 	public boolean estaActivado() {
-		return activo;
+		return activo = true;
 	}
 	
 	
