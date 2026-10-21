@@ -11,6 +11,7 @@ public class Juego extends InterfaceJuego {
     private MapaCiudad mapa;
     private HUD hud;
     private Repartidor rapi;
+    private int contadorBombas = 0;
     
     // Control de estado para el menú de inicio
     private boolean enMenu;
@@ -51,9 +52,10 @@ public class Juego extends InterfaceJuego {
         this.listaBombas = new ArrayList<>();
 
         // Creamos algunos enemigos de prueba en distintas posiciones
-        this.listaEnemigos.add(new Enemigos(200, 200, 1.5));
-        this.listaEnemigos.add(new Enemigos(400, 300, 2.0));
-
+        this.listaEnemigos.add(new Enemigos(200, 220, 1.5));
+        this.listaEnemigos.add(new Enemigos(360, 380, 2.0));
+        this.listaEnemigos.add(new Enemigos(520, 540, 1.5));
+        this.listaEnemigos.add(new Enemigos(360, 220, 2.0));
         // Creamos una bomba de prueba
         this.listaBombas.add(new Bomba(300, 300));
 
@@ -138,23 +140,39 @@ public class Juego extends InterfaceJuego {
         }
 
         // Actualizar movimiento y rebotes de los enemigos
+     // Actualizamos el movimiento de los enemigos
         for (Enemigos e : listaEnemigos) {
             e.mover();
-            e.rebotarEnBordesLaterales(50, 750);
-            e.rebotarEnBordesSuperiorInferior(80, 650);
+        }
+        	// Contamos los ticks para controlar la aparición de bombas
+        	contadorBombas++;
+
+        	// Cada 180 ticks, los enemigos colocan bombas
+        	if (contadorBombas >= 180) {
+        	
+            // Cada enemigo coloca una bomba en su posición actual
+            for (Enemigos e : listaEnemigos) {
+                listaBombas.add(new Bomba(e.getX(), e.getY()));
+            }
+            
+            // Reiniciamos el contador para comenzar nuevamente
+            contadorBombas = 0;
+            }
             
             // --- COLISIÓN REPARTIDOR vs ENEMIGO ---
+            for (Enemigos e : listaEnemigos) {
             if (cooldownDaño == 0 && hayColision(rapi.getX(), rapi.getY(), rapi.getAncho(), rapi.getAlto(),
                                                   e.getX(), e.getY(), e.getAncho(), e.getAlto())) {
                 rapi.setVida(rapi.getVida() - 1);
                 cooldownDaño = 45; // Espera 45 ticks para volver a recibir daño
                 System.out.println("¡Colisión con enemigo! Vidas restantes: " + rapi.getVida());
             }
-        }
-
+            
+        	
         // Actualizar el estado de las bombas
         for (Bomba b : listaBombas) {
-            b.actualizar();
+            b.actualizar(mapa);
+            b.dibujar(entorno);
             
             // --- COLISIÓN REPARTIDOR vs BOMBA ---
             if (b.isActiva() && cooldownDaño == 0 && hayColision(rapi.getX(), rapi.getY(), rapi.getAncho(), rapi.getAlto(),
@@ -165,7 +183,7 @@ public class Juego extends InterfaceJuego {
                 System.out.println("¡Chocaste una bomba! Vidas restantes: " + rapi.getVida());
             }
         }
-
+        	}
         // Llamar al dibujado general
         this.dibujar();
     }
