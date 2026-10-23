@@ -11,7 +11,12 @@ public class Juego extends InterfaceJuego {
     private MapaCiudad mapa;
     private HUD hud;
     private Repartidor rapi;
+    private boolean enGameOver;
+    private boolean enVictoria;
     private int contadorBombas = 0;
+    
+    // contador de pedidios
+    private int pedidosEntregados;
     
     // Control de estado para el menú de inicio
     private boolean enMenu;
@@ -35,6 +40,9 @@ public class Juego extends InterfaceJuego {
         
         // El juego arranca en el menú de inicio
         this.enMenu = true;
+        this.enVictoria=false;
+        this.pedidosEntregados = 0;
+        this.enGameOver = false;
        
         // Inicializa la clase jugador
         this.rapi = new Repartidor(750, 400, 20, 20, 3.5, 5);
@@ -65,7 +73,7 @@ public class Juego extends InterfaceJuego {
 
     @Override
     public void tick() {
-        // --- ESTADO 1: MENÚ DE INICIO ---
+        // --- ESTADO_ MENÚ DE INICIO ---
         if (enMenu) {
             dibujarPantallaInicio();
             
@@ -76,9 +84,35 @@ public class Juego extends InterfaceJuego {
             return; // Cortamos el tick para que no ejecute la lógica del juego de fondo
         }
 
-        // --- ESTADO 2: JUEGO EN CURSO ---
+        if (enGameOver) {
+            dibujarPantallaGameOver();
+            
+            
+            if (entorno.sePresiono('j') || entorno.sePresiono('J')) {
+                reiniciarJuego();
+            }
+            return;
+        }
+        // condicion de victoria
+        if (enVictoria) {
+            dibujarPantallaVictoria();
+            if (entorno.sePresiono('s') || entorno.sePresiono('S')) {
+                reiniciarJuego();
+            }
+            return;
+        }
+       
+        if (this.rapi.getVida() <= 0) {
+            enGameOver = true;
+            return;
+        }
+       // condicion 
+        if (this.pedidosEntregados >= 3) {
+            enVictoria = true;
+            return;
+        }
         
-        // Reducir el cooldown de daño en cada tick si es mayor a 0
+       
         if (cooldownDaño > 0) {
             cooldownDaño--;
         }
@@ -286,6 +320,35 @@ public class Juego extends InterfaceJuego {
 
         entorno.cambiarFont("OCR A Extended", 22, Color.YELLOW, entorno.NEGRITA);
         entorno.escribirTexto("Presioná ENTER para comenzar", 200, 500);
+    }
+    private void dibujarPantallaGameOver() {
+        entorno.cambiarFont("OCR A Extended", 40, Color.RED, entorno.NEGRITA);
+        entorno.escribirTexto("GAME OVER", 280, 250);
+
+        entorno.cambiarFont("OCR A Extended", 22, Color.WHITE, entorno.NEGRITA);
+        entorno.escribirTexto("Te quedaste sin vidas", 270, 330);
+
+        entorno.cambiarFont("OCR A Extended", 20, Color.YELLOW, entorno.NEGRITA);
+        entorno.escribirTexto("Presioná 'R' para volver a intentar", 210, 430);
+    }
+    //PANTALLA DE VICTORIA
+ // Pantalla de Victoria nueva
+    private void dibujarPantallaVictoria() {
+        entorno.cambiarFont("OCR A Extended", 40, Color.GREEN, entorno.NEGRITA);
+        entorno.escribirTexto("¡VICTORIA!", 290, 250);
+
+        entorno.cambiarFont("OCR A Extended", 22, Color.WHITE, entorno.NEGRITA);
+        entorno.escribirTexto("¡Entregaste 3 pedidos a tiempo!", 220, 330);
+
+        entorno.cambiarFont("OCR A Extended", 20, Color.YELLOW, entorno.NEGRITA);
+        entorno.escribirTexto("Presioná 'J' para jugar de nuevo", 220, 430);
+    }
+    private void reiniciarJuego() {
+        this.rapi = new Repartidor(750, 400, 20, 20, 3.5, 5);
+        this.ticks = 0;
+        this.pedidosEntregados = 0;
+        this.enGameOver = false;
+        this.enVictoria = false;
     }
     
     public static void main(String[] args) {
