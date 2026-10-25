@@ -2,23 +2,33 @@ package juego;
 	import java.awt.Color;
 	import java.util.Random;
 	import entorno.Entorno;
+	import java.awt.Image;
+	import entorno.Herramientas;
 
+	
 	public class Cuadra{
 	    private int x, y;
 	    private int ancho, alto;
 	    private boolean[] esNegocio; 
 
-	    public Cuadra(int x, int y, int ancho, int alto, Random rand) {
+	    public Cuadra(int x, int y, int ancho, int alto, Random rand, boolean tieneNegocio) {
 	        this.x = x;
 	        this.y = y;
 	        this.ancho = ancho;
 	        this.alto = alto;
 	       
-	        this.esNegocio = new boolean[4]; 
-	        int posNegocio = rand.nextInt(4); 
-	        this.esNegocio[posNegocio] = true;
-	    }
+	        this.esNegocio = new boolean[4];
 
+	        // Elegimos una de las cuatro posiciones para el negocio
+	        int posNegocio = rand.nextInt(4);
+
+	        // Asignamos un negocio y tres casas
+	        for (int i = 0; i < 4; i++) {
+	            this.esNegocio[i] = (i == posNegocio);
+	        }
+	    }
+	    
+	    
 	    public void dibujar(Entorno entorno) {
 	        
 	        entorno.dibujarRectangulo(x, y, ancho, alto, 0, Color.GREEN.darker());
@@ -34,19 +44,34 @@ package juego;
 	        for (int i = 0; i < 4; i++) {
 	            int cx = x + offsetX[i];
 	            int cy = y + offsetY[i];
-
+	            
 	            if (esNegocio[i]) {
-	                entorno.dibujarRectangulo(cx, cy, subAncho, subAlto, 0, Color.BLUE); 
+	            	// Negocio en la tercera manzana de la primera fila
+	                entorno.dibujarImagen(casa, cx, cy, 0, 0.5);
 	            } else {
-	                entorno.dibujarRectangulo(cx, cy, subAncho, subAlto, 0, Color.ORANGE); 
+	                entorno.dibujarImagen(casa2, cx, cy, 0, 0.5);
 	            }
+	            
+	           
+	            
 	        }
 	    }
-
+	    
 	    public int getX() { return x; }
 	    public int getY() { return y; }
 	    public int getAncho() { return ancho; }
 	    public int getAlto() { return alto; }
+	    
+	    private static Image casa =
+	    	    Herramientas.cargarImagen("imagenes/casa.png");
+
+	    	private static Image casa2 =
+	    	    Herramientas.cargarImagen("imagenes/casa2.png");
+	   
+	   
+	  
 	}
+	
+
 
 

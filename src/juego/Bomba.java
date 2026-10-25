@@ -10,24 +10,25 @@ public class Bomba {
     private double y;
     private int tiempo;
     private boolean activa;
-    private double ancho = 30;
-    private double alto = 30;
+    private double ancho = 20;
+    private double alto = 20;
     private double radioExplosion = 20;
     private boolean explotada;
-    private int tiempoExplosion = 20;
-    private double alcanceExplosion = 40;
+    private int tiempoExplosion = 100;
+    private double alcanceExplosion = 50;
     private double alcanceArriba;
     private double alcanceAbajo;
     private double alcanceIzquierda;
     private double alcanceDerecha;
-    
+    private int contadorBombas = 0;
     
 
+     
     // Función de bomba
     public Bomba(double x, double y) {
         this.x = x;
         this.y = y;
-        this.tiempo = 180;
+        this.tiempo = 550;
         this.activa = true;
         this.explotada = false;
     }
@@ -53,6 +54,16 @@ public class Bomba {
             }
         }
     }
+    
+    public boolean ColocarBombas() {
+    	contadorBombas++;
+    	
+    	if(contadorBombas < 180) {
+    		contadorBombas = 0;
+    		return true;
+    	}
+    		return false;
+    }
 
     // Función explotar
     public void explotar(MapaCiudad mapa) {
@@ -68,14 +79,20 @@ public class Bomba {
             entorno.dibujarCirculo(this.x, this.y, this.ancho, Color.MAGENTA);
         }
     
+      //Si la bomba ya exploto 
         if(explotada) {
-        	entorno.dibujarRectangulo(this.x, this.y - alcanceArriba / 2, 12, alcanceArriba, 0, Color.ORANGE);
+        	
+        	//Explosion hacia arriba
+        	entorno.dibujarRectangulo(this.x, this.y - alcanceArriba / 2, 15, alcanceArriba, 0, Color.ORANGE);
         
-        	entorno.dibujarRectangulo(this.x, this.y + alcanceAbajo / 2, 12, alcanceAbajo, 0, Color.ORANGE);
+        	//Explosion hacia abajo
+        	entorno.dibujarRectangulo(this.x, this.y + alcanceAbajo / 2, 15, alcanceAbajo, 0, Color.ORANGE);
         	
-        	entorno.dibujarRectangulo(this.x - alcanceIzquierda / 2, y, alcanceIzquierda, 12, 0, Color.ORANGE);
+        	//Explosion hacia la izquierda
+        	entorno.dibujarRectangulo(this.x - alcanceIzquierda / 2, y, alcanceIzquierda, 15, 0, Color.ORANGE);
         	
-        	entorno.dibujarRectangulo(this.x + alcanceDerecha / 2, y, alcanceDerecha, 12, 0, Color.ORANGE);
+        	//Explosion hacia la derecha
+        	entorno.dibujarRectangulo(this.x + alcanceDerecha / 2, y, alcanceDerecha, 15, 0, Color.ORANGE);
         
         	}
       }
@@ -89,6 +106,38 @@ public class Bomba {
     	
     	return explotada && distancia <= radioExplosion;
    }
+    
+public boolean alcanzaRepartidor(double jugadorX, double jugadorY, double jugadorAncho, double jugadorAlto){
+    	
+    	if(explotada == false) {
+    		return false;
+    	}
+    	
+    	//Rectangulo superior de la bomba en explosion 
+    	boolean arriba =
+    			jugadorX > x - (jugadorAncho + 12) / 2 && jugadorX < x + (jugadorAncho + 12) / 2 &&
+    			jugadorY > y - alcanceArriba - jugadorAlto / 2 && jugadorY < y + jugadorAlto / 2;
+    			
+    	
+    	//Rectangulo inferior de la bomba en explosion 	
+    	boolean abajo =
+    		    jugadorX > x - (jugadorAncho + 12) / 2 && jugadorX < x + (jugadorAncho + 12) / 2 &&
+    		    jugadorY > y - jugadorAlto / 2 && jugadorY < y + alcanceAbajo + jugadorAlto / 2;
+    		    
+    
+    	//Rectangulo izquierdo de la bomba en explosion    
+    	boolean izquierda =
+    		    jugadorX > x - alcanceIzquierda - jugadorAncho / 2 && jugadorX < x + jugadorAncho / 2 &&
+    		    jugadorY > y - (jugadorAlto + 12) / 2 && jugadorY < y + (jugadorAlto + 12) / 2;
+    		    
+    	
+    	//Rectangulo derecho de la bomba en explosion 
+    	boolean derecha =
+    		    jugadorX > x - jugadorAncho / 2 && jugadorX < x + alcanceDerecha + jugadorAncho / 2 &&
+    		    jugadorY > y - (jugadorAlto + 12) / 2 && jugadorY < y + (jugadorAlto + 12) / 2;
+
+    		        return arriba || abajo || izquierda || derecha;
+    		    }
     
 
 public void calcularAlcances(MapaCiudad mapa) {

@@ -1,6 +1,7 @@
 package juego;
 
-
+//import para las imagenes
+import java.awt.Image;
 import java.awt.Color;
 
 //import java.awt.image.BufferedImage;
@@ -8,6 +9,7 @@ import java.awt.Color;
 //import javax.imageio.ImageIO;
 
 import entorno.Entorno;
+import entorno.Herramientas;
 
 
 
@@ -27,7 +29,12 @@ public class Repartidor {
 	double vida;
 	boolean segundos_respawn;
 	
-	
+	//Imagenes del repartidor segun sus angulos
+	private static Image imagenFrente = Herramientas.cargarImagen("imagenes/Repartidor_inferior_sin_mochila sin fondo.png");
+	private static Image imagenAtras = Herramientas.cargarImagen("imagenes/Repartidor_angulo_superior sin fondo.png");
+	private static Image imagenIzquierda = Herramientas.cargarImagen("imagenes/Repartidor_angulo_izquierdo sin fondo.png");
+	private static Image imagenDerecha = Herramientas.cargarImagen("imagenes/Repartidor_angulo_derecho sin fondo.png");
+	private String direccion = "FRENTE";
 	
 	public double getAncho() {
 		return ancho;
@@ -60,7 +67,28 @@ public class Repartidor {
 	
 	//dibujar el repartidor dentro de la pantalla
 	public void dibujarRepartidor(Entorno entorno) {
-		entorno.dibujarRectangulo(x, y, ancho, alto, 0, Color.BLUE);
+		Image imagen = imagenFrente;
+	
+		if (direccion.equals("ARRIBA")) {
+			imagen = imagenAtras;
+		}
+		
+		if (direccion.equals("IZQUIERDA")) {
+			imagen = imagenIzquierda;
+		}
+		
+		if (direccion.equals("DERECHA")) {
+			imagen = imagenDerecha;
+		}
+		
+		entorno.dibujarImagen(imagen, x, y, 0, 0.17);
+		
+				
+				
+				
+				
+				
+				//entorno.dibujarRectangulo(x, y, ancho, alto, 0, Color.BLUE);
 	}
 	
 	
@@ -68,18 +96,26 @@ public class Repartidor {
 	//movimiento
 	public void MoverseDerecha() {
 		x += this.velocidad;
+		//Muestra la imagen mirando hacia la derecha
+		direccion = "DERECHA";
 	}
 	
 	public void MoverseIzquierda() {
 		x -= this.velocidad;
+		//Muestra la imagen mirando hacia la izquierda
+		direccion = "IZQUIERDA";
 	}
 	
 	public void MoverseArriba() {
 		y -= this.velocidad;
+		//Muestra la imagen mirando hacia arriba
+		direccion = "ARRIBA";
 	}
 	
 	public void MoverseAbajo() {
 		y += this.velocidad;
+		//Muestra la imagen mirando hacia abajo
+		direccion = "FRENTE";
 	}
 	
 	

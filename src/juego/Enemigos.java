@@ -1,8 +1,10 @@
 package juego;
 
+import java.awt.Image;
 import java.util.Random;
 import java.awt.Color;
 import entorno.Entorno;
+import entorno.Herramientas;
 
 public class Enemigos {
     private double x, y;
@@ -10,18 +12,38 @@ public class Enemigos {
     private int direccion;
     private double ancho = 20;
     private double alto = 20;
+    private int contadorBombas;
+    private int tiempoInicial;
+    private double XInicial;
+    private double YInicial;
 
+    //Imagenes del enemigo
+    private static Image imagenFrente = Herramientas.cargarImagen("imagenes/Enemigo_angulo_Inferior.png");
+    private static Image imagenAtras = Herramientas.cargarImagen("imagenes/Enemigo_angulo_superior.png");
+    private static Image imagenIzquierda = Herramientas.cargarImagen("imagenes/Enemigo_angulo_izquierdo.png");
+    private static Image imagenDerecha = Herramientas.cargarImagen("imagenes/Enemigo_angulo_derecho.png");
+    private String direccion_enemiga = "FRENTE"; 
+    
+    
     private Random random = new Random();
 
     // Guarda la última intersección donde eligió dirección
     private double ultimaX = -1;
     private double ultimaY = -1;
+     
 
-    public Enemigos(double x, double y, double velocidad) {
+    public Enemigos(double x, double y, double velocidad, int tiempoInicial) {
         this.x = x;
         this.y = y;
         this.velocidad = velocidad;
+        this.XInicial = x;
+        this.YInicial = y;
         this.Movrandom();
+        this.tiempoInicial = tiempoInicial;
+        this.contadorBombas = 0;
+        
+    
+        
     }
 
     // 0 izquierda, 1 derecha, 2 arriba, 3 abajo
@@ -34,18 +56,23 @@ public class Enemigos {
         // Movimiento según la dirección elegida
         if (direccion == 0) {
             x -= velocidad;
+            direccion_enemiga = "IZQUIERDA";
+            
         }
 
         if (direccion == 1) {
             x += velocidad;
+            direccion_enemiga = "DERECHA";
         }
 
         if (direccion == 2) {
             y -= velocidad;
+            direccion_enemiga = "ARRIBA";
         }
 
         if (direccion == 3) {
             y += velocidad;
+            direccion_enemiga = "FRENTE";
         }
         
         controlarBordes();
@@ -146,11 +173,23 @@ public void controlarBordes() {
     }
 }
 
-
+	//Aplicamos la imagen de los enemigos segun su direccion
     public void dibujar(Entorno entorno) {
-        entorno.dibujarRectangulo(
-            x, y, ancho, alto, 0, Color.RED
-        );
+    	Image imagen = imagenFrente;
+    	
+		if (direccion_enemiga.equals("ARRIBA")) {
+			imagen = imagenAtras;
+		}
+		
+		if (direccion_enemiga.equals("IZQUIERDA")) {
+			imagen = imagenIzquierda;
+		}
+		
+		if (direccion_enemiga.equals("DERECHA")) {
+			imagen = imagenDerecha;
+		}
+		
+		entorno.dibujarImagen(imagen, x, y, 0, 0.10);
     }
 
     public double getX() {
@@ -167,5 +206,27 @@ public void controlarBordes() {
 
     public double getAlto() {
         return alto;
+    }
+    
+    public boolean ColocarBombas() {
+    	contadorBombas++;
+    	
+    	if(contadorBombas >= tiempoInicial) {
+    		contadorBombas = 0;
+    		
+    		tiempoInicial = 180;
+    		return true;
+    	}
+    		return false;
+    }
+    
+    public void respawn() {
+    	x = XInicial;
+    	y = YInicial;
+    	
+    	Movrandom();
+    	
+    	ultimaX = -2;
+    	ultimaY = -2;
     }
 }

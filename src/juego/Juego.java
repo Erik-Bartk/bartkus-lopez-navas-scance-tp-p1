@@ -14,6 +14,7 @@ public class Juego extends InterfaceJuego {
     private boolean enGameOver;
     private boolean enVictoria;
     private int contadorBombas = 0;
+    private int tiempoInicio;
     
     // contador de pedidios
     private int pedidosEntregados;
@@ -60,10 +61,10 @@ public class Juego extends InterfaceJuego {
         this.listaBombas = new ArrayList<>();
 
         // Creamos algunos enemigos de prueba en distintas posiciones
-        this.listaEnemigos.add(new Enemigos(200, 220, 1.5));
-        this.listaEnemigos.add(new Enemigos(360, 380, 2.0));
-        this.listaEnemigos.add(new Enemigos(520, 540, 1.5));
-        this.listaEnemigos.add(new Enemigos(360, 220, 2.0));
+        this.listaEnemigos.add(new Enemigos(200, 220, 1.5, 90));
+        this.listaEnemigos.add(new Enemigos(360, 380, 1.5, 140));
+        this.listaEnemigos.add(new Enemigos(520, 540, 1.5, 190));
+        this.listaEnemigos.add(new Enemigos(360, 220, 1.5, 240));
         // Creamos una bomba de prueba
         this.listaBombas.add(new Bomba(300, 300));
 
@@ -80,6 +81,7 @@ public class Juego extends InterfaceJuego {
             // Al presionar ENTER, salimos del menú y arranca el juego
             if (entorno.sePresiono(entorno.TECLA_ENTER)) {
                 enMenu = false;
+                tiempoInicio = entorno.tiempo();
             }
             return; // Cortamos el tick para que no ejecute la lógica del juego de fondo
         }
@@ -88,7 +90,7 @@ public class Juego extends InterfaceJuego {
             dibujarPantallaGameOver();
             
             
-            if (entorno.sePresiono('j') || entorno.sePresiono('J')) {
+            if (entorno.sePresiono('r') || entorno.sePresiono('R')) {
                 reiniciarJuego();
             }
             return;
@@ -118,7 +120,8 @@ public class Juego extends InterfaceJuego {
         }
 
         // Movimiento del jugador con el teclado
-        if (entorno.estaPresionada(entorno.TECLA_ARRIBA)) {
+        // Movimiento superior del repartidor
+        if (entorno.estaPresionada('w')|| entorno.estaPresionada('W')) { 
             this.rapi.MoverseArriba();
             
             for (Cuadra cuadras : mapa.getCuadras()) {
@@ -128,7 +131,8 @@ public class Juego extends InterfaceJuego {
             }    
         }
         
-        if (entorno.estaPresionada(entorno.TECLA_ABAJO)) {
+        //Movimiento inferior del repartidor
+        if (entorno.estaPresionada('s') || entorno.estaPresionada('s')) {
             this.rapi.MoverseAbajo();
             
             for (Cuadra cuadras : mapa.getCuadras()) {
@@ -137,8 +141,9 @@ public class Juego extends InterfaceJuego {
                 }
             }
         }
-                
-        if (entorno.estaPresionada(entorno.TECLA_DERECHA)) {
+              
+        //Movimiento derecho del repartidor
+        if (entorno.estaPresionada('d') || entorno.estaPresionada('d')) {
             this.rapi.MoverseDerecha();
             
             for (Cuadra cuadras : mapa.getCuadras()) {
@@ -148,7 +153,8 @@ public class Juego extends InterfaceJuego {
             }
         }
         
-        if (entorno.estaPresionada(entorno.TECLA_IZQUIERDA)) {
+        //Movimiento izquierdo del repartidor
+        if (entorno.estaPresionada('a') || entorno.estaPresionada('a')) {
             this.rapi.MoverseIzquierda();
             
             for (Cuadra cuadras : mapa.getCuadras()) {
@@ -173,25 +179,15 @@ public class Juego extends InterfaceJuego {
             this.rapi.y = 700 - this.rapi.getAlto() /2;
         }
 
-        // Actualizar movimiento y rebotes de los enemigos
      // Actualizamos el movimiento de los enemigos
         for (Enemigos e : listaEnemigos) {
             e.mover();
-        }
-        	// Contamos los ticks para controlar la aparición de bombas
-        	contadorBombas++;
-
-        	// Cada 180 ticks, los enemigos colocan bombas
-        	if (contadorBombas >= 180) {
-        	
-            // Cada enemigo coloca una bomba en su posición actual
-            for (Enemigos e : listaEnemigos) {
+      
+            // Comprobamos si este enemigo debe colocar una bomba
+            if (e.ColocarBombas()) {
                 listaBombas.add(new Bomba(e.getX(), e.getY()));
             }
-            
-            // Reiniciamos el contador para comenzar nuevamente
-            contadorBombas = 0;
-            }
+        }
             
             // --- COLISIÓN REPARTIDOR vs ENEMIGO ---
             for (Enemigos e : listaEnemigos) {
@@ -216,7 +212,21 @@ public class Juego extends InterfaceJuego {
                 cooldownDaño = 45;
                 System.out.println("¡Chocaste una bomba! Vidas restantes: " + rapi.getVida());
             }
+         // COLISIÓN REPARTIDOR vs EXPLOSIÓN
+            if (cooldownDaño == 0 &&
+                b.alcanzaRepartidor(rapi.getX(), rapi.getY(),
+                                    rapi.getAncho(), rapi.getAlto())) {
+
+                rapi.setVida(rapi.getVida() - 1);
+                cooldownDaño = 45;
+
+                System.out.println(
+                    "¡Te alcanzó una explosión! Vidas restantes: " + rapi.getVida()
+                );
+            }
+        
         }
+        
         	}
         // Llamar al dibujado general
         this.dibujar();
@@ -255,7 +265,7 @@ public class Juego extends InterfaceJuego {
 
         // 5. Dibujar la barra superior (HUD)
         if (this.hud != null) {
-            this.hud.actualizar(this.ticks, (int)this.rapi.getVida(), 0, 0, "Camino al negocio");
+        	this.hud.actualizar(this.ticks, (int)this.rapi.getVida(), this.pedidosEntregados, 0, "Camino al negocio");
             this.hud.dibujar(this.entorno);
         }
         
@@ -263,32 +273,60 @@ public class Juego extends InterfaceJuego {
         if (this.proyectiles[0] == null && entorno.sePresionoBoton(entorno.BOTON_IZQUIERDO)) {
             String direccion = "DERECHA"; 
             
-            if (entorno.estaPresionada(entorno.TECLA_IZQUIERDA))
+            if (entorno.estaPresionada('a') || entorno.estaPresionada('a'))
                 direccion = "IZQUIERDA";
-            else if (entorno.estaPresionada(entorno.TECLA_ARRIBA))
+            else if (entorno.estaPresionada('w') || entorno.estaPresionada('w'))
                 direccion = "ARRIBA";
-            else if (entorno.estaPresionada(entorno.TECLA_ABAJO))
+            else if (entorno.estaPresionada('s') || entorno.estaPresionada('s'))
                 direccion = "ABAJO";
+         
 
             this.proyectiles[0] = new Proyectil(this.rapi.getX(), this.rapi.getY(), 10, 4, direccion);
         }
         
-        if (this.proyectiles[0] != null) {
-            this.proyectiles[0].mover();             
-            this.proyectiles[0].dibujarProyectil(entorno);
+        	if (this.proyectiles[0] != null) {
+
+                this.proyectiles[0].mover();
+
+                boolean colision = false;
+                
+                // Recorremos los enemigos para comprobar si hubo un impacto
+                for (Enemigos e : listaEnemigos) {
+
+                	// Comprueba si hay impacto con el enemigo y recibe las coordeanadas
+                    if (colision == false && hayColision(
+                            this.proyectiles[0].getX(), this.proyectiles[0].getY(),  this.proyectiles[0].getRadio(), this.proyectiles[0].getRadio(),
+                            e.getX(), e.getY(), e.getAncho(), e.getAlto())) {
+                    	
+                    	// El enemigo respawnea si comprueba la colision del proyectil y el enemigo
+                        e.respawn();
+                        this.proyectiles[0] = null;
+                        colision = true;
+                    }
+                }
+                
+                // Si todavía existe el proyectil, lo dibujamos y controlamos sus límites
+                if (this.proyectiles[0] != null) {
+                	
+                	
+                    this.proyectiles[0].dibujarProyectil(entorno);
             
             // Control de límites de pantalla
             if (this.proyectiles[0].getX() > 800 || this.proyectiles[0].getX() < 0 || this.proyectiles[0].getY() > 700 || this.proyectiles[0].getY() < 50) {  
                 this.proyectiles[0] = null; 
             }
         }
+        	}
         
         // 7. Dibuja el TIEMPO DEL JUEGO en el HUD
-        int tiempoInicial = 90000;
-        int tiempoRestante = tiempoInicial - entorno.tiempo();
+        int tiempoInicial = 300000;
+        int tiempoRestante = tiempoInicial - (entorno.tiempo() - tiempoInicio);
         
+        // Condicion de game over en caso de finalizar el tiempo
         if (tiempoRestante < 0) {
             tiempoRestante = 0;
+            enGameOver = true;
+            
         }
         
         int sec = tiempoRestante / 1000;
@@ -349,6 +387,7 @@ public class Juego extends InterfaceJuego {
         this.pedidosEntregados = 0;
         this.enGameOver = false;
         this.enVictoria = false;
+        tiempoInicio = entorno.tiempo();
     }
     
     public static void main(String[] args) {
