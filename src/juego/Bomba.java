@@ -1,7 +1,9 @@
 package juego;
 
+import java.awt.Image;
 import java.awt.Color;
 import entorno.Entorno;
+import entorno.Herramientas;
 
 public class Bomba {
 	
@@ -21,6 +23,8 @@ public class Bomba {
     private double alcanceIzquierda;
     private double alcanceDerecha;
     private int contadorBombas = 0;
+    
+    private static Image ImagenBomba = Herramientas.cargarImagen("Imagenes/Imagen_Bomba sin fondo.png");
     
 
      
@@ -76,7 +80,8 @@ public class Bomba {
 
     public void dibujar(Entorno entorno) {
         if (this.activa) {
-            entorno.dibujarCirculo(this.x, this.y, this.ancho, Color.MAGENTA);
+        	Image Imagen_Bomba = ImagenBomba;
+            entorno.dibujarImagen(Imagen_Bomba, x, y, 0, 0.10);
         }
     
       //Si la bomba ya exploto 

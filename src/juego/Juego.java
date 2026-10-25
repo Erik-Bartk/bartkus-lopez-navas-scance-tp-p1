@@ -46,6 +46,9 @@ public class Juego extends InterfaceJuego {
     int segundos;
     String miFont= "Arial";
     
+    private Sonido sonido = new Sonido();
+    private boolean sonidoFinalReproducido = false;
+    
     public Juego() {
         this.entorno = new Entorno(this, "Repartidor - TP P1", 800, 700);
         
@@ -188,6 +191,7 @@ public class Juego extends InterfaceJuego {
     public void tick() {
         // --- ESTADO_ MENÚ DE INICIO ---
         if (enMenu) {
+            sonido.reproducir("sonido_de_menu.wav", true);
             dibujarPantallaInicio();
             
             // Al presionar ENTER, salimos del menú y arranca el juego
@@ -197,8 +201,15 @@ public class Juego extends InterfaceJuego {
             }
             return; // Cortamos el tick para que no ejecute la lógica del juego de fondo
         }
-
+ 
         if (enGameOver) {
+        
+        	// Reproducimos la derrota una sola vez
+        if (!sonidoFinalReproducido) {
+                sonido.reproducir("sonido_de_derrota.wav", false);
+                sonidoFinalReproducido = true;
+            }
+        
             dibujarPantallaGameOver();
             
             
@@ -207,15 +218,26 @@ public class Juego extends InterfaceJuego {
             }
             return;
         }
-        // condicion de victoria
+        
+        // Condicion de victoria
         if (enVictoria) {
+        	
+        if (!sonidoFinalReproducido) {
+                sonido.reproducir("sonido_de_victoria.wav", false);
+                sonidoFinalReproducido = true;
+            }
+
             dibujarPantallaVictoria();
             if (entorno.sePresiono('s') || entorno.sePresiono('S')) {
                 reiniciarJuego();
             }
             return;
         }
-       
+         
+        // Musica de la partida
+            sonido.reproducir("sonido_de_partida.wav", true);
+        
+
         if (this.rapi.getVida() <= 0) {
             enGameOver = true;
             return;
@@ -231,7 +253,6 @@ public class Juego extends InterfaceJuego {
             cooldownDaño--;
         }
 
-        // Movimiento del jugador con el teclado
         // Movimiento superior del repartidor
         if (entorno.estaPresionada('w')|| entorno.estaPresionada('W')) { 
             this.rapi.MoverseArriba();
@@ -595,6 +616,7 @@ public class Juego extends InterfaceJuego {
         this.totalPedidosEntregados = 0;
         this.enGameOver = false;
         this.enVictoria = false;
+        sonidoFinalReproducido = false;
         tiempoInicio = entorno.tiempo();
     }
     
