@@ -61,6 +61,7 @@ package juego;
 	    public int getY() { return y; }
 	    public int getAncho() { return ancho; }
 	    public int getAlto() { return alto; }
+
 	    
 	    private static Image casa =
 	    	    Herramientas.cargarImagen("imagenes/casa.png");
@@ -68,8 +69,20 @@ package juego;
 	    	private static Image casa2 =
 	    	    Herramientas.cargarImagen("imagenes/casa2.png");
 	   
-	   
+
+	    
+	    
+		public boolean[] getEsNegocio() {
+			return esNegocio;
+		}
+
+		public void setEsNegocio(boolean[] esNegocio) {
+			this.esNegocio = esNegocio;
+		}
+	    
+	    
 	  
+	    
 	}
 	
 

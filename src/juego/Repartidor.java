@@ -26,7 +26,7 @@ public class Repartidor {
 	
 
 	//segmento de vidas
-	double vida;
+	int vida;
 	boolean segundos_respawn;
 	
 	//Imagenes del repartidor segun sus angulos
@@ -54,7 +54,7 @@ public class Repartidor {
 	}
 	
 	
-	public Repartidor(double x, double y, double ancho, double alto, double velocidad, double vida) {
+	public Repartidor(double x, double y, double ancho, double alto, double velocidad, int vida) {
 		
 		this.x = x;
 		this.y = y;
@@ -121,7 +121,7 @@ public class Repartidor {
 	
 	
 	//segmento de vidas
-	public Repartidor(double vidasIniciales) {
+	public Repartidor(int vidasIniciales) {
 		this.vida = vidasIniciales;
 		this.segundos_respawn = false;
 	}
@@ -140,7 +140,7 @@ public class Repartidor {
 	}
 
 	
-	public double getVida() {
+	public int getVida() {
 		return vida;
 	}
 	
@@ -159,7 +159,7 @@ public class Repartidor {
 	public void setVelocidad(double velocidad) {
 		this.velocidad = velocidad;
 	}
-	public void setVida(double vida) {
+	public void setVida(int vida) {
 		this.vida = vida;
 	}
 	public void setAncho(double ancho) {

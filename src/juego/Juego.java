@@ -3,8 +3,11 @@ package juego;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
+
 import entorno.Entorno;
 import entorno.InterfaceJuego;
+import jdk.internal.org.jline.terminal.TerminalBuilder.SystemOutput;
 
 public class Juego extends InterfaceJuego {
     private Entorno entorno;
@@ -14,10 +17,17 @@ public class Juego extends InterfaceJuego {
     private boolean enGameOver;
     private boolean enVictoria;
     private int contadorBombas = 0;
+
     private int tiempoInicio;
+
+    private Pedido pedidos;
+    private Cuadra cuadras;
+
     
     // contador de pedidios
-    private int pedidosEntregados;
+    
+    private int totalPedidosEntregados = 0; //incrementa el contador cuando se entrega un pedido
+    private int tiempoEsperaNuevoPedido = 0; //el tiempo de espera para el proximo pedido
     
     // Control de estado para el menú de inicio
     private boolean enMenu;
@@ -42,7 +52,7 @@ public class Juego extends InterfaceJuego {
         // El juego arranca en el menú de inicio
         this.enMenu = true;
         this.enVictoria=false;
-        this.pedidosEntregados = 0;
+//       this.totalPedidosEntregados = 0;
         this.enGameOver = false;
        
         // Inicializa la clase jugador
@@ -55,22 +65,124 @@ public class Juego extends InterfaceJuego {
         this.mapa = new MapaCiudad();
         this.hud = new HUD();
         this.ticks = 0;
-
+        
         // Inicializar listas de entidades
         this.listaEnemigos = new ArrayList<>();
         this.listaBombas = new ArrayList<>();
 
         // Creamos algunos enemigos de prueba en distintas posiciones
+
         this.listaEnemigos.add(new Enemigos(200, 220, 1.5, 90));
         this.listaEnemigos.add(new Enemigos(360, 380, 1.5, 140));
         this.listaEnemigos.add(new Enemigos(520, 540, 1.5, 190));
         this.listaEnemigos.add(new Enemigos(360, 220, 1.5, 240));
+
+        
         // Creamos una bomba de prueba
         this.listaBombas.add(new Bomba(300, 300));
 
+        //Creamos un pedido para el juego
+        generarNuevoPedido();
+        
+        
+        
         // Iniciar el juego
         this.entorno.iniciar();
     }
+    
+    
+    //Metodos Auxiliares
+    private void generarNuevoPedido() {
+        Random rand = new Random(); 
+        List<Cuadra> listaCuadras = this.mapa.getCuadras(); 
+
+        // Elige dos cuadras al azar de la lista
+        Cuadra cuadraNegocio = listaCuadras.get(rand.nextInt(listaCuadras.size())); 
+        Cuadra cuadraCasa = listaCuadras.get(rand.nextInt(listaCuadras.size())); 
+
+        // Variables para guardar las posiciones finales del pedido
+        double xNegocio = 0;
+        double yNegocio = 0;
+        double xCasa = 0;
+        double yCasa = 0;
+
+        // Busca cual de las 4 casa es el negocio
+        boolean[] posicionesNegocio = cuadraNegocio.getEsNegocio();
+        for (int i = 0; i < 4; i++) {
+            if (posicionesNegocio[i]) {
+                
+                // va preguntado si el negocio es la posicion 0,1,2,3 para guardar los valores de su alto/ancho para generar el pedido en el negocio
+            	// se divide sobre 4 porque se calcula sobre toda la cuadra y la divide en 4 secciones para obtener los valores de las casas
+                if (i == 0) { 
+                	xNegocio = cuadraNegocio.getX() - cuadraNegocio.getAncho() / 4; 
+                	yNegocio = cuadraNegocio.getY() - cuadraNegocio.getAlto() / 4; 
+                }
+                
+                if (i == 1) { 
+                	xNegocio = cuadraNegocio.getX() + cuadraNegocio.getAncho() / 4; 
+                	yNegocio = cuadraNegocio.getY() - cuadraNegocio.getAlto() / 4; 
+                }
+                
+                if (i == 2) { 
+                	xNegocio = cuadraNegocio.getX() - cuadraNegocio.getAncho() / 4;
+                	yNegocio = cuadraNegocio.getY() + cuadraNegocio.getAlto() / 4; 
+                }
+                
+                if (i == 3) { 
+                	xNegocio = cuadraNegocio.getX() + cuadraNegocio.getAncho() / 4; 
+                	yNegocio = cuadraNegocio.getY() + cuadraNegocio.getAlto() / 4; 
+                }
+                
+            }
+        }
+        
+        //Busca una casa al azar en la cuadra elegida para la entrega
+        boolean[] posicionesCasa = cuadraCasa.getEsNegocio();
+        int indiceCasa = rand.nextInt(4); // Elegimos una de las 4 esquinas al azar
+        
+        // Si la esquina elegida resulta ser el negocio de esa cuadra, seguimos buscando otra
+        while (posicionesCasa[indiceCasa] == true) {
+            indiceCasa = rand.nextInt(4);  //asigna una esquina de una casa a otra cuadra al azar 
+        }
+
+        // Calculamos el centro de la casa elegida (naranja) con la misma matemática
+        if (indiceCasa == 0) { 
+        	xCasa = cuadraCasa.getX() - cuadraCasa.getAncho() / 4; 
+        	yCasa = cuadraCasa.getY() - cuadraCasa.getAlto() / 4; 
+        }
+        
+        if (indiceCasa == 1) { 
+        	xCasa = cuadraCasa.getX() + cuadraCasa.getAncho() / 4; 
+        	yCasa = cuadraCasa.getY() - cuadraCasa.getAlto() / 4; 
+        }
+        
+        if (indiceCasa == 2) { 
+        	xCasa = cuadraCasa.getX() - cuadraCasa.getAncho() / 4; 
+        	yCasa = cuadraCasa.getY() + cuadraCasa.getAlto() / 4; 
+        }
+        
+        if (indiceCasa == 3) { 
+        	xCasa = cuadraCasa.getX() + cuadraCasa.getAncho() / 4; 
+        	yCasa = cuadraCasa.getY() + cuadraCasa.getAlto() / 4; 
+        }
+
+        // Se crea el pedido con los puntos exactos obtenidos
+        this.pedidos = new Pedido(xNegocio, yNegocio, xCasa, yCasa, 0); 
+    } 
+    
+    
+    // Método auxiliar de colisión por rectángulos
+    public static boolean hayColision(double x1, double y1, double ancho1, double alto1,
+                                      double x2, double y2, double ancho2, double alto2) {
+        boolean colisionX = Math.abs(x1 - x2) < (ancho1 + ancho2) / 2;
+        boolean colisionY = Math.abs(y1 - y2) < (alto1 + alto2) / 2;
+        return colisionX && colisionY;
+    }
+    
+ 
+    
+    
+    
 
     @Override
     public void tick() {
@@ -109,7 +221,7 @@ public class Juego extends InterfaceJuego {
             return;
         }
        // condicion 
-        if (this.pedidosEntregados >= 3) {
+        if (this.totalPedidosEntregados >= 3) {
             enVictoria = true;
             return;
         }
@@ -179,7 +291,61 @@ public class Juego extends InterfaceJuego {
             this.rapi.y = 700 - this.rapi.getAlto() /2;
         }
 
-     // Actualizamos el movimiento de los enemigos
+
+     // Actualizamos el movimiento de los enemigos    
+        if (this.pedidos != null) {
+
+            // Si el pedido se entrego o se perdio se genera uno nuevo
+            if (this.pedidos.entregado || this.pedidos.perdido) {
+            	
+            	this.tiempoEsperaNuevoPedido++; // El reloj empieza a correr
+            	
+            	// Cuando pasan 90 frames (apox. 1.5 segundos), recién ahí generamos el nuevo
+                if (this.tiempoEsperaNuevoPedido >= 90) {
+                    generarNuevoPedido(); 
+                    this.tiempoEsperaNuevoPedido = 0; // Reiniciamos el reloj para el próximo pedido
+                }
+              
+            }
+            
+            // si el jugador choca con un enemigo o bomba se pierde y tiene que volver a generarse otro pedido
+            for (Enemigos e : listaEnemigos) {
+                if (hayColision(rapi.getX(), rapi.getY(), rapi.getAncho(), rapi.getAlto(), e.getX(), e.getY(), e.getAncho(), e.getAlto())) {
+                    this.pedidos.estaPerdido();
+                    System.out.println("¡Un enemigo te quitó el pedido!");
+                }    
+
+            }
+            
+            //Para agarrar el pedido selecciona con el clik derecho del mouse
+            if (entorno.sePresionoBoton(entorno.BOTON_DERECHO) && !this.pedidos.entregado && !this.pedidos.perdido) {
+                
+                // Esta esperando en el negocio y el repartidor hace clic encima
+                if (this.pedidos.esperando) {
+                	if (hayColision(rapi.getX(), rapi.getY(), rapi.getAncho(), rapi.getAlto(), pedidos.xNegocio, pedidos.yNegocio, 80, 80)) {
+                        
+                    	this.pedidos.agarrarPedido();
+                        System.out.println("¡Pedido recogido! Llévalo a la casa de destino.");
+                    }
+                }
+                
+                // El pedido ya está en camino y hace clic sobre la casa de destino
+                else 
+                	if (this.pedidos.camino) {
+                    if (hayColision(rapi.getX(), rapi.getY(), rapi.getAncho(), rapi.getAlto(), pedidos.xCasa, pedidos.yCasa, 80, 80)) {
+                       
+                    	this.pedidos.entregarPedido(); 
+                    	System.out.println("¡Pedido entregado con éxito!");
+                    	
+                        this.totalPedidosEntregados ++;
+                    }
+                }
+            }
+        } 
+        
+        
+  
+       // Actualizamos el movimiento de los enemigos
         for (Enemigos e : listaEnemigos) {
             e.mover();
       
@@ -232,58 +398,93 @@ public class Juego extends InterfaceJuego {
         this.dibujar();
     }
 
-    // Método auxiliar de colisión por rectángulos
-    public static boolean hayColision(double x1, double y1, double ancho1, double alto1,
-                                      double x2, double y2, double ancho2, double alto2) {
-        boolean colisionX = Math.abs(x1 - x2) < (ancho1 + ancho2) / 2;
-        boolean colisionY = Math.abs(y1 - y2) < (alto1 + alto2) / 2;
-        return colisionX && colisionY;
-    }
 
+
+    
     public void dibujar() {
         this.ticks++;
         
-        // 1. Dibujar el mapa de la ciudad
+      //1. Dibuja el pedido en pantalla
+        if (this.pedidos != null) {
+        	this.pedidos.dibujarEncargo(entorno);
+        	this.pedidos.dibujarPedido(entorno);
+        	
+        	
+        	entorno.cambiarFont("OCR A Extended", 15, Color.CYAN, entorno.NEGRITA);
+        	entorno.escribirTexto("Pedidos Entregados: " + this.totalPedidosEntregados, 135, 35);
+        	
+        	
+        	if (this.pedidos.perdido) {
+        	        entorno.cambiarFont("OCR A Extended", 15, Color.RED, entorno.NEGRITA); // Rojo para fracaso
+        	        entorno.escribirTexto("Estado Pedido: PERDIDO", 350, 35);
+        	}
+        	
+        	else if (this.pedidos.entregado) {
+        	        entorno.cambiarFont("OCR A Extended", 15, Color.GREEN, entorno.NEGRITA); // Verde para éxito
+        	        entorno.escribirTexto("Estado Pedido: ENTREGADO", 350, 35);
+        	} 
+        	
+        	else if (this.pedidos.camino) {
+        	        entorno.cambiarFont("OCR A Extended", 15, Color.ORANGE, entorno.NEGRITA); // Amarillo para "en camino"
+        	        entorno.escribirTexto("Estado Pedido: EN CAMINO", 350, 35);
+        	} 
+        	
+        	else if (this.pedidos.esperando) {
+                entorno.cambiarFont("OCR A Extended", 15, Color.ORANGE, entorno.NEGRITA); // Cyan para cuando espera en el negocio
+                entorno.escribirTexto("Estado Pedido: ESPERANDO EN NEGOCIO", 350, 35);
+            }
+        	
+        }
+        
+        
+        // 2. Dibujar el mapa de la ciudad
         if (this.mapa != null) {
             this.mapa.dibujar(this.entorno);
         }
         
-        // 2. Dibujar enemigos
+        // 3. Dibujar enemigos
         for (Enemigos e : listaEnemigos) {
             e.dibujar(this.entorno);
         }
 
-        // 3. Dibujar bombas
+        // 4. Dibujar bombas
         for (Bomba b : listaBombas) {
             b.dibujar(this.entorno);
         }
 
-        // 4. Dibujar al repartidor
+        // 5. Dibujar al repartidor
         if (this.rapi != null) {
             this.rapi.dibujarRepartidor(entorno);
         }
 
-        // 5. Dibujar la barra superior (HUD)
+        // 6. Dibujar la barra superior (HUD)
         if (this.hud != null) {
-        	this.hud.actualizar(this.ticks, (int)this.rapi.getVida(), this.pedidosEntregados, 0, "Camino al negocio");
+        	this.hud.actualizar(this.ticks, (int)this.rapi.getVida(), this.totalPedidosEntregados, 0, "Camino al negocio");
             this.hud.dibujar(this.entorno);
         }
         
-        // 6. Dibuja el proyectil cuando se lo invoca
+        // 7. Dibuja el proyectil cuando se lo invoca/activa
         if (this.proyectiles[0] == null && entorno.sePresionoBoton(entorno.BOTON_IZQUIERDO)) {
-            String direccion = "DERECHA"; 
             
-            if (entorno.estaPresionada('a') || entorno.estaPresionada('a'))
+        	// AL HACER CLICK CON EL MOUSE REALIZA UN DISPARO HACIA LA DERECHA
+        	String direccion = "DERECHA"; 
+            
+            // DEPENDIENDO DONDE SE ESTE MOVIENDO EL JUGADOR EL DISPARO VA HACIA SU DIRECCION
+            if (entorno.estaPresionada('a')|| entorno.estaPresionada('a'))
+
                 direccion = "IZQUIERDA";
             else if (entorno.estaPresionada('w') || entorno.estaPresionada('w'))
                 direccion = "ARRIBA";
             else if (entorno.estaPresionada('s') || entorno.estaPresionada('s'))
                 direccion = "ABAJO";
-         
 
+         
+            // PARAMETROS PARA GENERAR EL PROYECTIL
             this.proyectiles[0] = new Proyectil(this.rapi.getX(), this.rapi.getY(), 10, 4, direccion);
-        }
+            
+            }
         
+            
         	if (this.proyectiles[0] != null) {
 
                 this.proyectiles[0].mover();
@@ -311,14 +512,16 @@ public class Juego extends InterfaceJuego {
                 	
                     this.proyectiles[0].dibujarProyectil(entorno);
             
+            
             // Control de límites de pantalla
             if (this.proyectiles[0].getX() > 800 || this.proyectiles[0].getX() < 0 || this.proyectiles[0].getY() > 700 || this.proyectiles[0].getY() < 50) {  
                 this.proyectiles[0] = null; 
+            	}
             }
         }
-        	}
         
-        // 7. Dibuja el TIEMPO DEL JUEGO en el HUD
+        
+        // 8. Dibuja el TIEMPO DEL JUEGO en el HUD
         int tiempoInicial = 300000;
         int tiempoRestante = tiempoInicial - (entorno.tiempo() - tiempoInicio);
         
@@ -335,14 +538,49 @@ public class Juego extends InterfaceJuego {
         int min = sec / 60;
         minutos = min % 60;
         
-        Color miColor = new Color (100, 100, 100);
         
-        entorno.cambiarFont("OCR A Extended", 25, miColor, entorno.NEGRITA);
+        entorno.cambiarFont("OCR A Extended", 15, Color.WHITE, entorno.NEGRITA);
         entorno.escribirTexto("TIEMPO: "+ minutos +":"+ segundos, 5, 35);
     
-        entorno.cambiarFont("OCR A Extended", 20, Color.RED, entorno.NEGRITA);
-        entorno.escribirTexto("Vidas: " + rapi.getVida(), 650, 35);
-    }
+        entorno.cambiarFont("OCR A Extended", 15, Color.RED, entorno.NEGRITA);
+        entorno.escribirTexto("Vidas: " + rapi.getVida(), 700, 35);
+        
+        
+        //8. Dibuja el pedido en pantalla
+        if (this.pedidos != null) {
+        	this.pedidos.dibujarEncargo(entorno);
+        	this.pedidos.dibujarPedido(entorno);
+        	
+        	
+        	entorno.cambiarFont("OCR A Extended", 15, Color.CYAN, entorno.NEGRITA);
+        	entorno.escribirTexto("Pedidos Entregados: " + this.totalPedidosEntregados, 135, 35);
+        	
+        	
+        	if (this.pedidos.perdido) {
+        	        entorno.cambiarFont("OCR A Extended", 15, Color.RED, entorno.NEGRITA); // Rojo para fracaso
+        	        entorno.escribirTexto("Estado Pedido: PERDIDO", 350, 35);
+        	}
+        	
+        	else if (this.pedidos.entregado) {
+        	        entorno.cambiarFont("OCR A Extended", 15, Color.GREEN, entorno.NEGRITA); // Verde para éxito
+        	        entorno.escribirTexto("Estado Pedido: ENTREGADO", 350, 35);
+        	} 
+        	
+        	else if (this.pedidos.camino) {
+        	        entorno.cambiarFont("OCR A Extended", 15, Color.ORANGE, entorno.NEGRITA); // Amarillo para "en camino"
+        	        entorno.escribirTexto("Estado Pedido: EN CAMINO", 350, 35);
+        	} 
+        	
+        	else if (this.pedidos.esperando) {
+                entorno.cambiarFont("OCR A Extended", 15, Color.ORANGE, entorno.NEGRITA); // Cyan para cuando espera en el negocio
+                entorno.escribirTexto("Estado Pedido: ESPERANDO EN NEGOCIO", 350, 35);
+            }
+        	
+        	}
+        }
+ 
+    
+    
 
     // Método exclusivo para dibujar la pantalla de inicio
     private void dibujarPantallaInicio() {
@@ -379,12 +617,12 @@ public class Juego extends InterfaceJuego {
         entorno.escribirTexto("¡Entregaste 3 pedidos a tiempo!", 220, 330);
 
         entorno.cambiarFont("OCR A Extended", 20, Color.YELLOW, entorno.NEGRITA);
-        entorno.escribirTexto("Presioná 'J' para jugar de nuevo", 220, 430);
+        entorno.escribirTexto("Presioná 'S' para jugar de nuevo", 220, 430);
     }
     private void reiniciarJuego() {
         this.rapi = new Repartidor(750, 400, 20, 20, 3.5, 5);
         this.ticks = 0;
-        this.pedidosEntregados = 0;
+        this.totalPedidosEntregados = 0;
         this.enGameOver = false;
         this.enVictoria = false;
         tiempoInicio = entorno.tiempo();

@@ -30,11 +30,13 @@ public class HUD {
         // Fondo negro del panel superior
         entorno.dibujarRectangulo(400, 25, 800, 50, 0, Color.BLACK);
 
+        
         // En Entorno UNGS se escribe el texto en las coordenadas X, Y
         entorno.escribirTexto("Tiempo: " + (tiempoTranscurrido / 100) + "s", 15, 20);
         entorno.escribirTexto("Vidas: " + vidas, 130, 20);
         entorno.escribirTexto("Entregados: " + pedidosEntregados, 210, 20);
         entorno.escribirTexto("Enemigos: " + enemigosEliminados, 340, 20);
         entorno.escribirTexto("Pedido: " + estadoPedido, 500, 20);
+    
     }
 }

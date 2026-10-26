@@ -18,7 +18,8 @@ public class MapaCiudad {
     private int yInicio = 80;
 
     private List<Cuadra> cuadras;
-
+   
+    
     public MapaCiudad() {
         this.cuadras = new ArrayList<>();
         this.generarCuadras();
