@@ -297,13 +297,13 @@ public class Juego extends InterfaceJuego {
 
             // Si el pedido se entrego o se perdio se genera uno nuevo
             if (this.pedidos.entregado || this.pedidos.perdido) {
+            		
+            	this.tiempoEsperaNuevoPedido ++;	 // tiempo de esperar para el nuevo pedido
             	
-            	this.tiempoEsperaNuevoPedido ++; // tiempo de esperar para el nuevo pedido
             	
-            	// Cuando pasan 90 frames recién ahí generamos el nuevo
-                if (this.tiempoEsperaNuevoPedido >= 90) {
+                if (this.tiempoEsperaNuevoPedido >= 90) {	// Cuando pasan 90 frames recién ahí generamos el nuevo
                     generarNuevoPedido(); 
-                    this.tiempoEsperaNuevoPedido = 0; // Reiniciamos el tiempo para el próximo pedido
+                    this.tiempoEsperaNuevoPedido = 0; 	// Reiniciamos el tiempo para el próximo pedido
                 }
               
             }
@@ -312,7 +312,7 @@ public class Juego extends InterfaceJuego {
             for (Enemigos e : listaEnemigos) {
                 if (hayColision(rapi.getX(), rapi.getY(), rapi.getAncho(), rapi.getAlto(), e.getX(), e.getY(), e.getAncho(), e.getAlto())) {
                     this.pedidos.estaPerdido();
-                    System.out.println("¡Un enemigo te quitó el pedido!");
+                    System.out.println("Un motochorro te robo y te quedaste sin el pedido :(");
                 }    
 
             }
@@ -320,7 +320,7 @@ public class Juego extends InterfaceJuego {
             //Para agarrar el pedido selecciona con el clik derecho del mouse
             if (entorno.sePresionoBoton(entorno.BOTON_DERECHO) && !this.pedidos.entregado && !this.pedidos.perdido) {
                 
-                // Esta esperando en el negocio y el repartidor hace clic encima
+                //el estado del pedido esta en reposo hasta que el jugador interactue con el negocio con click derecho
                 if (this.pedidos.esperando) {
                 	if (hayColision(rapi.getX(), rapi.getY(), rapi.getAncho(), rapi.getAlto(), pedidos.xNegocio, pedidos.yNegocio, 80, 80)) {
                         
@@ -406,66 +406,34 @@ public class Juego extends InterfaceJuego {
     public void dibujar() {
         this.ticks++;
         
-      //1. Dibuja el pedido en pantalla
-        if (this.pedidos != null) {
-        	this.pedidos.dibujarEncargo(entorno);
-        	this.pedidos.dibujarPedido(entorno);
-        	
-        	
-        	entorno.cambiarFont("OCR A Extended", 15, Color.CYAN, entorno.NEGRITA);
-        	entorno.escribirTexto("Pedidos Entregados: " + this.totalPedidosEntregados, 135, 35);
-        	
-        	
-        	if (this.pedidos.perdido) {
-        	        entorno.cambiarFont("OCR A Extended", 15, Color.RED, entorno.NEGRITA); 
-        	        entorno.escribirTexto("Estado Pedido: PERDIDO", 350, 35);
-        	}
-        	
-        	else if (this.pedidos.entregado) {
-        	        entorno.cambiarFont("OCR A Extended", 15, Color.GREEN, entorno.NEGRITA); 
-        	        entorno.escribirTexto("Estado Pedido: ENTREGADO", 350, 35);
-        	} 
-        	
-        	else if (this.pedidos.camino) {
-        	        entorno.cambiarFont("OCR A Extended", 15, Color.ORANGE, entorno.NEGRITA); 
-        	        entorno.escribirTexto("Estado Pedido: EN CAMINO", 350, 35);
-        	} 
-        	
-        	else if (this.pedidos.esperando) {
-                entorno.cambiarFont("OCR A Extended", 15, Color.ORANGE, entorno.NEGRITA); 
-                entorno.escribirTexto("Estado Pedido: ESPERANDO EN NEGOCIO", 350, 35);
-            }
-        	
-        }
-        
-        
-        // 2. Dibujar el mapa de la ciudad
+
+        // 1. Dibujar el mapa de la ciudad
         if (this.mapa != null) {
             this.mapa.dibujar(this.entorno);
         }
         
-        // 3. Dibujar enemigos
+        // 2. Dibujar enemigos
         for (Enemigos e : listaEnemigos) {
             e.dibujar(this.entorno);
         }
 
-        // 4. Dibujar bombas
+        // 3. Dibujar bombas
         for (Bomba b : listaBombas) {
             b.dibujar(this.entorno);
         }
 
-        // 5. Dibujar al repartidor
+        // 4. Dibujar al repartidor
         if (this.rapi != null) {
             this.rapi.dibujarRepartidor(entorno);
         }
 
-        // 6. Dibujar la barra superior (HUD)
+        // 5. Dibujar la barra superior (HUD)
         if (this.hud != null) {
         	this.hud.actualizar(this.ticks, (int)this.rapi.getVida(), this.totalPedidosEntregados, 0, "Camino al negocio");
             this.hud.dibujar(this.entorno);
         }
         
-        // 7. Dibuja el proyectil cuando se lo invoca/activa
+        // 6. Dibuja el proyectil cuando se lo invoca/activa
         if (this.proyectiles[0] == null && entorno.sePresionoBoton(entorno.BOTON_IZQUIERDO)) {
             
         	// AL HACER CLICK CON EL MOUSE REALIZA UN DISPARO HACIA LA DERECHA
@@ -523,7 +491,7 @@ public class Juego extends InterfaceJuego {
         }
         
         
-        // 8. Dibuja el TIEMPO DEL JUEGO en el HUD
+        // 7. Dibuja el TIEMPO DEL JUEGO en el HUD
         int tiempoInicial = 300000;
         int tiempoRestante = tiempoInicial - (entorno.tiempo() - tiempoInicio);
         
