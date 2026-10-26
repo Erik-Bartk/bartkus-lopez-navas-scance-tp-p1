@@ -325,7 +325,7 @@ public class Juego extends InterfaceJuego {
                 	if (hayColision(rapi.getX(), rapi.getY(), rapi.getAncho(), rapi.getAlto(), pedidos.xNegocio, pedidos.yNegocio, 80, 80)) {
                         
                     	this.pedidos.agarrarPedido();
-                        System.out.println("¡Pedido recogido! Llévalo a la casa de destino.");
+                        System.out.println("Agarraste el pedido, entregalo o comelo en el camino como quieras.");
                     }
                 }
                 
@@ -335,7 +335,7 @@ public class Juego extends InterfaceJuego {
                     if (hayColision(rapi.getX(), rapi.getY(), rapi.getAncho(), rapi.getAlto(), pedidos.xCasa, pedidos.yCasa, 80, 80)) {
                        
                     	this.pedidos.entregarPedido(); 
-                    	System.out.println("¡Pedido entregado con éxito!");
+                    	System.out.println("Felicidades entregaste el pedido y no te lo robaron los hinchas de Nueva Chicago");
                     	
                         this.totalPedidosEntregados ++;
                     }

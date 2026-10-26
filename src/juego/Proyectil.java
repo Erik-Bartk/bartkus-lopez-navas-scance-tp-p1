@@ -91,51 +91,6 @@ public class Proyectil {
 	 
 	 
 	
-	/*
-	public void movimientoProyectil(Entorno entorno) {
-	
-		if (entorno.sePresiono(entorno.TECLA_DERECHA)) {
-				x+= this.velocidad;
-				if (x >= 800) {
-					activo = false;
-				}
-				else {
-					activo = true;
-				}
-		}
-		
-		if (entorno.sePresiono(entorno.TECLA_IZQUIERDA)) {
-				x-= this.velocidad;
-				if (x <= 0) {
-					activo = false;
-				}
-				else {
-					activo = true;
-				}
-		}
-		
-		if (entorno.sePresiono(entorno.TECLA_ARRIBA)) {
-				y-= this.velocidad;
-				if (y <= 0) {
-					activo = false;
-				}
-				else {
-					activo = true;
-				}
-		}
-		
-		if (entorno.sePresiono(entorno.TECLA_ABAJO)) {
-				y+= this.velocidad; 
-				if (y >= 700) {
-					activo = false;
-				}
-				else {
-					activo = true;
-				}
-		}
-	}
-	*/
-	
 	public boolean estaActivado() {
 		return activo = true;
 	}

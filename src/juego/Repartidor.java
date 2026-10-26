@@ -85,10 +85,7 @@ public class Repartidor {
 		
 				
 				
-				
-				
-				
-				//entorno.dibujarRectangulo(x, y, ancho, alto, 0, Color.BLUE);
+		//entorno.dibujarRectangulo(x, y, ancho, alto, 0, Color.BLUE);
 	}
 	
 	
