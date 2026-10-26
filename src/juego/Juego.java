@@ -145,7 +145,7 @@ public class Juego extends InterfaceJuego {
             indiceCasa = rand.nextInt(4);  //asigna una esquina de una casa a otra cuadra al azar 
         }
 
-        // Calculamos el centro de la casa elegida (naranja) con la misma matemática
+        // Calculamos el centro de la casa elegida
         if (indiceCasa == 0) { 
         	xCasa = cuadraCasa.getX() - cuadraCasa.getAncho() / 4; 
         	yCasa = cuadraCasa.getY() - cuadraCasa.getAlto() / 4; 
@@ -292,18 +292,18 @@ public class Juego extends InterfaceJuego {
         }
 
 
-     // Actualizamos el movimiento de los enemigos    
+        // Actualizamos el movimiento de los enemigos    
         if (this.pedidos != null) {
 
             // Si el pedido se entrego o se perdio se genera uno nuevo
             if (this.pedidos.entregado || this.pedidos.perdido) {
             	
-            	this.tiempoEsperaNuevoPedido++; // El reloj empieza a correr
+            	this.tiempoEsperaNuevoPedido ++; // tiempo de esperar para el nuevo pedido
             	
-            	// Cuando pasan 90 frames (apox. 1.5 segundos), recién ahí generamos el nuevo
+            	// Cuando pasan 90 frames recién ahí generamos el nuevo
                 if (this.tiempoEsperaNuevoPedido >= 90) {
                     generarNuevoPedido(); 
-                    this.tiempoEsperaNuevoPedido = 0; // Reiniciamos el reloj para el próximo pedido
+                    this.tiempoEsperaNuevoPedido = 0; // Reiniciamos el tiempo para el próximo pedido
                 }
               
             }
@@ -359,9 +359,11 @@ public class Juego extends InterfaceJuego {
             for (Enemigos e : listaEnemigos) {
             if (cooldownDaño == 0 && hayColision(rapi.getX(), rapi.getY(), rapi.getAncho(), rapi.getAlto(),
                                                   e.getX(), e.getY(), e.getAncho(), e.getAlto())) {
-                rapi.setVida(rapi.getVida() - 1);
-                cooldownDaño = 45; // Espera 45 ticks para volver a recibir daño
-                System.out.println("¡Colisión con enemigo! Vidas restantes: " + rapi.getVida());
+            	
+            	rapi.setVida(rapi.getVida() - 1);
+            	cooldownDaño = 45; // Espera 45 ticks para volver a recibir daño
+            	System.out.println("¡Colisión con enemigo! Vidas restantes: " + rapi.getVida());
+            	
             }
             
         	
@@ -415,22 +417,22 @@ public class Juego extends InterfaceJuego {
         	
         	
         	if (this.pedidos.perdido) {
-        	        entorno.cambiarFont("OCR A Extended", 15, Color.RED, entorno.NEGRITA); // Rojo para fracaso
+        	        entorno.cambiarFont("OCR A Extended", 15, Color.RED, entorno.NEGRITA); 
         	        entorno.escribirTexto("Estado Pedido: PERDIDO", 350, 35);
         	}
         	
         	else if (this.pedidos.entregado) {
-        	        entorno.cambiarFont("OCR A Extended", 15, Color.GREEN, entorno.NEGRITA); // Verde para éxito
+        	        entorno.cambiarFont("OCR A Extended", 15, Color.GREEN, entorno.NEGRITA); 
         	        entorno.escribirTexto("Estado Pedido: ENTREGADO", 350, 35);
         	} 
         	
         	else if (this.pedidos.camino) {
-        	        entorno.cambiarFont("OCR A Extended", 15, Color.ORANGE, entorno.NEGRITA); // Amarillo para "en camino"
+        	        entorno.cambiarFont("OCR A Extended", 15, Color.ORANGE, entorno.NEGRITA); 
         	        entorno.escribirTexto("Estado Pedido: EN CAMINO", 350, 35);
         	} 
         	
         	else if (this.pedidos.esperando) {
-                entorno.cambiarFont("OCR A Extended", 15, Color.ORANGE, entorno.NEGRITA); // Cyan para cuando espera en el negocio
+                entorno.cambiarFont("OCR A Extended", 15, Color.ORANGE, entorno.NEGRITA); 
                 entorno.escribirTexto("Estado Pedido: ESPERANDO EN NEGOCIO", 350, 35);
             }
         	
@@ -557,22 +559,22 @@ public class Juego extends InterfaceJuego {
         	
         	
         	if (this.pedidos.perdido) {
-        	        entorno.cambiarFont("OCR A Extended", 15, Color.RED, entorno.NEGRITA); // Rojo para fracaso
+        	        entorno.cambiarFont("OCR A Extended", 15, Color.RED, entorno.NEGRITA); 
         	        entorno.escribirTexto("Estado Pedido: PERDIDO", 350, 35);
         	}
         	
         	else if (this.pedidos.entregado) {
-        	        entorno.cambiarFont("OCR A Extended", 15, Color.GREEN, entorno.NEGRITA); // Verde para éxito
+        	        entorno.cambiarFont("OCR A Extended", 15, Color.GREEN, entorno.NEGRITA); 
         	        entorno.escribirTexto("Estado Pedido: ENTREGADO", 350, 35);
         	} 
         	
         	else if (this.pedidos.camino) {
-        	        entorno.cambiarFont("OCR A Extended", 15, Color.ORANGE, entorno.NEGRITA); // Amarillo para "en camino"
+        	        entorno.cambiarFont("OCR A Extended", 15, Color.ORANGE, entorno.NEGRITA); 
         	        entorno.escribirTexto("Estado Pedido: EN CAMINO", 350, 35);
         	} 
         	
         	else if (this.pedidos.esperando) {
-                entorno.cambiarFont("OCR A Extended", 15, Color.ORANGE, entorno.NEGRITA); // Cyan para cuando espera en el negocio
+                entorno.cambiarFont("OCR A Extended", 15, Color.ORANGE, entorno.NEGRITA); 
                 entorno.escribirTexto("Estado Pedido: ESPERANDO EN NEGOCIO", 350, 35);
             }
         	
