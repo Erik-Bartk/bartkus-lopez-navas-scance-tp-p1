@@ -7,7 +7,6 @@ import entorno.Herramientas;
 
 public class Bomba {
 	
-//<<<<<<< Updated upstream
     private double x;
     private double y;
     private int tiempo;

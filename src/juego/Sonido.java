@@ -1,7 +1,6 @@
-
 package juego;
 
-// Importamos las clases que necesitamos para reproducir audio
+//Importamos las clases que necesitamos para reproducir audio
 import java.net.URL;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.AudioInputStream;
@@ -9,28 +8,28 @@ import javax.sound.sampled.Clip;
 
 public class Sonido {
 
-    // Guarda el sonido que estamos reproduciendo
+    //Guarda el sonido que estamos reproduciendo
     private Clip sonido;
 
-    // Guarda el nombre del sonido actual
+    //Guarda el nombre del sonido actual
     private String nombreActual = null;
 
     public void reproducir(String nombreArchivo, boolean repetir) {
 
-        // Si ya está sonando el mismo audio, no lo reproducimos otra vez
+        //Si ya está sonando el mismo audio, no lo reproducimos otra vez
         if (nombreArchivo.equals(nombreActual)
                 && sonido != null && sonido.isRunning()) {
             return;
         }
 
-        // Detenemos el sonido anterior antes de reproducir otro
+        //Detenemos el sonido anterior antes de reproducir otro
         detener();
 
         try {
-            // Buscamos el archivo dentro de la carpeta sonidos
+            //Buscamos el archivo dentro de la carpeta sonidos
             URL ruta = getClass().getResource("/sonidos/" + nombreArchivo);
 
-            // Si no encontramos el archivo, mostramos un mensaje
+            //Si no encontramos el archivo, mostramos un mensaje
             if (ruta == null) {
                 System.out.println("No se encontro el sonido: " + nombreArchivo);
                 return;

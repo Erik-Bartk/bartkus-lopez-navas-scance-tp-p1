@@ -19,7 +19,7 @@ public class Repartidor {
 	double x;
 	double y;
 	
-	//con figura es alto y ancho
+	//configura es alto y ancho
 	double ancho;
 	double alto;
 	double velocidad;

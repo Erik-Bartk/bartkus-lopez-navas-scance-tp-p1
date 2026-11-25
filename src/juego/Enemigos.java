@@ -83,8 +83,9 @@ public class Enemigos {
     }
 
 
-	//Aplicamos la imagen de los enemigos segun su direccion
+	
     public void dibujar(Entorno entorno) {
+    	//Aplicamos la imagen de los enemigos segun su direccion
     	Image imagen = imagenFrente;
     	
 		if (direccion_enemiga.equals("ARRIBA")) {
