@@ -22,7 +22,7 @@ public class Bomba {
     private double alcanceAbajo;
     private double alcanceIzquierda;
     private double alcanceDerecha;
-    private int contadorBombas = 0;
+
     
     private static Image ImagenBomba = Herramientas.cargarImagen("Imagenes/Imagen_Bomba sin fondo.png");
     
@@ -32,7 +32,7 @@ public class Bomba {
     public Bomba(double x, double y) {
         this.x = x;
         this.y = y;
-        this.tiempo = 550;
+        this.tiempo = 120;
         this.activa = true;
         this.explotada = false;
     }
@@ -59,15 +59,7 @@ public class Bomba {
         }
     }
     
-    public boolean ColocarBombas() {
-    	contadorBombas++;
-    	
-    	if(contadorBombas < 180) {
-    		contadorBombas = 0;
-    		return true;
-    	}
-    		return false;
-    }
+
 
     // Función explotar
     public void explotar(MapaCiudad mapa) {
@@ -224,41 +216,8 @@ public void calcularAlcances(MapaCiudad mapa) {
         this.explotada = false;
     }
     
-/*
-=======
-	
-	private double x;
-	private double y;
-	private int tiempo;
-	private boolean activa;
-	
-	
-	public Bomba(double x, double y) {
-		this.x = x;
-		this.y = y;
-		this.tiempo = 4;
-		this.activa = true ;
-	}
-	
-	
-	public void actualizar() {
-		if(tiempo > 0 && activa == true) {
-			this.tiempo -= 1;
-			
-		}if(tiempo == 0 && activa == true) {
-			explotar();
-			this.activa = false;
-			}
-	}
-	
-	
-	public void explotar() {
-		System.out.println("La bomba exploto");
-	
-	}
-	
->>>>>>> Stashed changes
-
-*/
-    
+    public boolean isExplotada() {
+    	return explotada;
+    }
+ 
 }

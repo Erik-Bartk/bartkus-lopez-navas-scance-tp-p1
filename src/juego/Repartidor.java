@@ -62,6 +62,7 @@ public class Repartidor {
 		this.alto = alto;
 		this.velocidad = velocidad;
 		this.vida = vida;
+		this.segundos_respawn = false;
 	}	
 	
 	
@@ -125,9 +126,9 @@ public class Repartidor {
 	
 	
 	public void restarVidas() {
-		if (this.vida > 0 && segundos_respawn == true) {
+		if (this.vida > 0) {
 			this.vida --;
-			this.segundos_respawn = false;
+			this.segundos_respawn = true;
 		}
 	}
 	

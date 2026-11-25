@@ -26,16 +26,18 @@ public class Juego extends InterfaceJuego {
     
     // contador de pedidios
     
-    private int totalPedidosEntregados = 0; //incrementa el contador cuando se entrega un pedido
-    private int tiempoEsperaNuevoPedido = 0; //el tiempo de espera para el proximo pedido
+    private int totalPedidosEntregados = 0;  //incrementa el contador cuando se entrega un pedido
+    private int tiempoEsperaNuevoPedido = 0;  //el tiempo de espera para el proximo pedido
+    private int totalPedidosPerdidos = 0;  //incrementa el contador cuando se pierde un pedido
+    
     
     // Control de estado para el menú de inicio
     private boolean enMenu;
     
     // Listas para manejar múltiples enemigos y bombas
-    private List<Enemigos> listaEnemigos;
-    private List<Bomba> listaBombas;
-    
+    private Enemigos [] enemigos;
+    private Bomba[] bombas;
+
     private Proyectil[] proyectiles;
     
     private int ticks;
@@ -59,7 +61,7 @@ public class Juego extends InterfaceJuego {
         this.enGameOver = false;
        
         // Inicializa la clase jugador
-        this.rapi = new Repartidor(750, 400, 20, 20, 3.5, 5);
+        this.rapi = new Repartidor(750, 400, 20, 20, 3.5, 10);
       
         // Inicializa el Proyectil cuando sea llamado en la función
         this.proyectiles = new Proyectil [1];
@@ -70,38 +72,46 @@ public class Juego extends InterfaceJuego {
         this.ticks = 0;
         
         // Inicializar listas de entidades
-        this.listaEnemigos = new ArrayList<>();
-        this.listaBombas = new ArrayList<>();
+        this.enemigos = new Enemigos[4];
+        this.bombas = new Bomba[100]; // Capacidad máxima simultánea de bombas
 
-        // Creamos algunos enemigos de prueba en distintas posiciones
-
-        this.listaEnemigos.add(new Enemigos(200, 220, 1.5, 90));
-        this.listaEnemigos.add(new Enemigos(360, 380, 1.5, 140));
-        this.listaEnemigos.add(new Enemigos(520, 540, 1.5, 190));
-        this.listaEnemigos.add(new Enemigos(360, 220, 1.5, 240));
+        // Inicializa enemigos en distintas posiciones
+        this.enemigos[0] = new Enemigos(200, 220, 1.5, 90);
+        this.enemigos[1] = new Enemigos(360, 380, 1.5, 140);
+        this.enemigos[2] = new Enemigos(520, 540, 1.5, 190);
+        this.enemigos[3] = new Enemigos(360, 220, 1.5, 240);
 
         
-        // Creamos una bomba de prueba
-        this.listaBombas.add(new Bomba(300, 300));
-
         //Creamos un pedido para el juego
         generarNuevoPedido();
         
-        
-        
+       
         // Iniciar el juego
         this.entorno.iniciar();
     }
     
     
+    
     //Metodos Auxiliares
+    
+    private void agregarBomba(Bomba nuevaBomba) {
+        for (int i = 0; i < this.bombas.length; i++) {
+        	if (this.bombas[i] == null || (!this.bombas[i].isActiva() && !this.bombas[i].isExplotada())) {
+        	    this.bombas[i] = nuevaBomba;
+        	    return;
+        	}
+        }
+    }
+    
+    
+    
     private void generarNuevoPedido() {
         Random rand = new Random(); 
-        List<Cuadra> listaCuadras = this.mapa.getCuadras(); 
+        Cuadra[] cuadras = this.mapa.getCuadras(); 
 
         // Elige dos cuadras al azar de la lista
-        Cuadra cuadraNegocio = listaCuadras.get(rand.nextInt(listaCuadras.size())); 
-        Cuadra cuadraCasa = listaCuadras.get(rand.nextInt(listaCuadras.size())); 
+        Cuadra cuadraNegocio = cuadras[rand.nextInt(cuadras.length)]; 
+        Cuadra cuadraCasa = cuadras[rand.nextInt(cuadras.length)]; 
 
         // Variables para guardar las posiciones finales del pedido
         double xNegocio = 0;
@@ -174,7 +184,7 @@ public class Juego extends InterfaceJuego {
     } 
     
     
-    // Método auxiliar de colisión por rectángulos
+    //colisión por rectángulos
     public static boolean hayColision(double x1, double y1, double ancho1, double alto1,
                                       double x2, double y2, double ancho2, double alto2) {
         boolean colisionX = Math.abs(x1 - x2) < (ancho1 + ancho2) / 2;
@@ -183,9 +193,6 @@ public class Juego extends InterfaceJuego {
     }
     
  
-    
-    
-    
 
     @Override
     public void tick() {
@@ -219,7 +226,8 @@ public class Juego extends InterfaceJuego {
             return;
         }
         
-        // Condicion de victoria
+        
+        // Condicion de victoria y derrota
         if (enVictoria) {
         	
         if (!sonidoFinalReproducido) {
@@ -228,7 +236,7 @@ public class Juego extends InterfaceJuego {
             }
 
             dibujarPantallaVictoria();
-            if (entorno.sePresiono('s') || entorno.sePresiono('S')) {
+            if (entorno.sePresiono('J') || entorno.sePresiono('j')) {
                 reiniciarJuego();
             }
             return;
@@ -237,22 +245,27 @@ public class Juego extends InterfaceJuego {
         // Musica de la partida
             sonido.reproducir("sonido_de_partida.wav", true);
         
-
-        if (this.rapi.getVida() <= 0) {
+            
+        //condicion derrota
+        if (this.rapi.getVida() <= 0 || this.totalPedidosPerdidos >= 3) {
             enGameOver = true;
             return;
         }
-       // condicion 
+        
+        //condicion victoria
         if (this.totalPedidosEntregados >= 3) {
             enVictoria = true;
             return;
         }
         
-       
+        
         if (cooldownDaño > 0) {
             cooldownDaño--;
         }
-
+        
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------        
+        //movimiento del repartidor
+        
         // Movimiento superior del repartidor
         if (entorno.estaPresionada('w')|| entorno.estaPresionada('W')) { 
             this.rapi.MoverseArriba();
@@ -313,7 +326,9 @@ public class Juego extends InterfaceJuego {
         }
 
 
-        // Actualizamos el movimiento de los enemigos    
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        // Estado del pedido 
+        
         if (this.pedidos != null) {
 
             // Si el pedido se entrego o se perdio se genera uno nuevo
@@ -330,10 +345,11 @@ public class Juego extends InterfaceJuego {
             }
             
             // si el jugador choca con un enemigo o bomba se pierde y tiene que volver a generarse otro pedido
-            for (Enemigos e : listaEnemigos) {
-                if (hayColision(rapi.getX(), rapi.getY(), rapi.getAncho(), rapi.getAlto(), e.getX(), e.getY(), e.getAncho(), e.getAlto())) {
+            for (Enemigos e : enemigos) {
+                if (hayColision(rapi.getX(), rapi.getY(), rapi.getAncho(), rapi.getAlto(), e.getX(), e.getY(), e.getAncho(), e.getAlto()) && cooldownDaño == 0 && this.pedidos.camino == true) {
+                	
                     this.pedidos.estaPerdido();
-                    System.out.println("Un motochorro te robo y te quedaste sin el pedido :(");
+                    this.totalPedidosPerdidos += 1;
                 }    
 
             }
@@ -346,54 +362,106 @@ public class Juego extends InterfaceJuego {
                 	if (hayColision(rapi.getX(), rapi.getY(), rapi.getAncho(), rapi.getAlto(), pedidos.xNegocio, pedidos.yNegocio, 80, 80)) {
                         
                     	this.pedidos.agarrarPedido();
-                        System.out.println("Agarraste el pedido, entregalo o comelo en el camino como quieras.");
                     }
                 }
-                
+           
                 // El pedido ya está en camino y hace clic sobre la casa de destino
                 else 
                 	if (this.pedidos.camino) {
-                    if (hayColision(rapi.getX(), rapi.getY(), rapi.getAncho(), rapi.getAlto(), pedidos.xCasa, pedidos.yCasa, 80, 80)) {
+                		if (hayColision(rapi.getX(), rapi.getY(), rapi.getAncho(), rapi.getAlto(), pedidos.xCasa, pedidos.yCasa, 80, 80)) {
                        
-                    	this.pedidos.entregarPedido(); 
-                    	System.out.println("Felicidades entregaste el pedido y no te lo robaron los hinchas de Nueva Chicago");
-                    	
-                        this.totalPedidosEntregados ++;
+                			this.pedidos.entregarPedido(); 
+                			this.totalPedidosEntregados ++;
                     }
                 }
             }
         } 
         
         
-  
-       // Actualizamos el movimiento de los enemigos
-        for (Enemigos e : listaEnemigos) {
-            e.mover();
-      
-            // Comprobamos si este enemigo debe colocar una bomba
-            if (e.ColocarBombas()) {
-                listaBombas.add(new Bomba(e.getX(), e.getY()));
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------  
+       // Movimiento de los enemigos y activacion de la bomba
+        
+        for (Enemigos e : enemigos) {
+            if (e != null) {
+            	
+                if (e.getDireccion() == 0) {
+                    e.moverIzquierda();
+                } else if (e.getDireccion() == 1) {
+                    e.moverDerecha();
+                } else if (e.getDireccion() == 2) {
+                    e.moverArriba();
+                } else if (e.getDireccion() == 3) {
+                    e.moverAbajo();
+                }
+
+                boolean choco = false;
+
+                // Movimiento dentro del mapa
+                if (e.getX() < e.getAncho() / 2 || e.getX() >= 800 - e.getAncho() / 2 ||
+                    e.getY() <= 50 + e.getAlto() / 2 || e.getY() >= 700 - e.getAlto() / 2) {
+                    choco = true;
+                }
+
+                // Colision con las cuadras del mapa
+                for (Cuadra c : mapa.getCuadras()) {
+                    if (c != null && hayColision(e.getX(), e.getY(), e.getAncho(), e.getAlto(),
+                                                 c.getX(), c.getY(), c.getAncho(), c.getAlto())) {
+                        choco = true;
+                    }
+                }
+
+                // Si choca contra el borde o una cuadra, deshace el paso y cambia de dirección
+                if (choco) {
+                    if (e.getDireccion() == 0) e.moverDerecha();
+                    else if (e.getDireccion() == 1) e.moverIzquierda();
+                    else if (e.getDireccion() == 2) e.moverAbajo();
+                    else if (e.getDireccion() == 3) e.moverArriba();
+
+                    e.elegirNuevaDireccion();
+                    e.setContadorGiro(0);
+                    
+                } else {
+                    // Si avanza libre, cada 90 ticks cambia de dirección al azar
+                    e.setContadorGiro(e.getContadorGiro() + 1);
+                    if (e.getContadorGiro() >= 90) {
+                        e.elegirNuevaDireccion();
+                        e.setContadorGiro(0);
+                    }
+                }
+
+                // Coloca bombas
+                if (e.ColocarBombas()) {
+                    agregarBomba(new Bomba(e.getX(), e.getY()));
+                }
             }
         }
             
-            // --- COLISIÓN REPARTIDOR vs ENEMIGO ---
-            for (Enemigos e : listaEnemigos) {
+        
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------           
+        // Colision de repartidor contra el enemigo
+        
+        for (Enemigos e : enemigos) {
             if (cooldownDaño == 0 && hayColision(rapi.getX(), rapi.getY(), rapi.getAncho(), rapi.getAlto(),
                                                   e.getX(), e.getY(), e.getAncho(), e.getAlto())) {
             	
             	rapi.setVida(rapi.getVida() - 1);
-            	cooldownDaño = 45; // Espera 45 ticks para volver a recibir daño
+            	cooldownDaño = 30; // Espera 30 ticks para volver a recibir daño
             	System.out.println("¡Colisión con enemigo! Vidas restantes: " + rapi.getVida());
             	
             }
             
+        }
+        
+        
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------           
+        // Actualizar el estado de las bombas y su colision con el repartidor
+  
+        for (Bomba b : bombas) {
+        	if (b != null) {
+        		b.actualizar(mapa);
         	
-        // Actualizar el estado de las bombas
-        for (Bomba b : listaBombas) {
-            b.actualizar(mapa);
-            b.dibujar(entorno);
             
-            // --- COLISIÓN REPARTIDOR vs BOMBA ---
+            // Colision del repartidor con las bombas
             if (b.isActiva() && cooldownDaño == 0 && hayColision(rapi.getX(), rapi.getY(), rapi.getAncho(), rapi.getAlto(),
                                                                 b.getX(), b.getY(), b.getAncho(), b.getAlto())) {
                 rapi.setVida(rapi.getVida() - 1);
@@ -401,7 +469,8 @@ public class Juego extends InterfaceJuego {
                 cooldownDaño = 45;
                 System.out.println("¡Chocaste una bomba! Vidas restantes: " + rapi.getVida());
             }
-         // COLISIÓN REPARTIDOR vs EXPLOSIÓN
+            
+            // Colision del repartidor con la expansion de las bombas
             if (cooldownDaño == 0 &&
                 b.alcanzaRepartidor(rapi.getX(), rapi.getY(),
                                     rapi.getAncho(), rapi.getAlto())) {
@@ -409,14 +478,13 @@ public class Juego extends InterfaceJuego {
                 rapi.setVida(rapi.getVida() - 1);
                 cooldownDaño = 45;
 
-                System.out.println(
-                    "¡Te alcanzó una explosión! Vidas restantes: " + rapi.getVida()
-                );
-            }
-        
-        }
+                System.out.println("¡Te alcanzó una explosión! Vidas restantes: " + rapi.getVida());
+            	}
         
         	}
+        	
+        }
+        
         // Llamar al dibujado general
         this.dibujar();
     }
@@ -434,15 +502,17 @@ public class Juego extends InterfaceJuego {
         }
         
         // 2. Dibujar enemigos
-        for (Enemigos e : listaEnemigos) {
+        for (Enemigos e : enemigos) {
             e.dibujar(this.entorno);
         }
 
         // 3. Dibujar bombas
-        for (Bomba b : listaBombas) {
-            b.dibujar(this.entorno);
+        for (Bomba b : bombas) {
+        	if (b != null) {        
+        		b.dibujar(this.entorno);
+        	}
         }
-
+        
         // 4. Dibujar al repartidor
         if (this.rapi != null) {
             this.rapi.dibujarRepartidor(entorno);
@@ -461,12 +531,12 @@ public class Juego extends InterfaceJuego {
         	String direccion = "DERECHA"; 
             
             // DEPENDIENDO DONDE SE ESTE MOVIENDO EL JUGADOR EL DISPARO VA HACIA SU DIRECCION
-            if (entorno.estaPresionada('a')|| entorno.estaPresionada('a'))
+            if (entorno.estaPresionada('a')|| entorno.estaPresionada('A'))
 
                 direccion = "IZQUIERDA";
-            else if (entorno.estaPresionada('w') || entorno.estaPresionada('w'))
+            else if (entorno.estaPresionada('w') || entorno.estaPresionada('W'))
                 direccion = "ARRIBA";
-            else if (entorno.estaPresionada('s') || entorno.estaPresionada('s'))
+            else if (entorno.estaPresionada('s') || entorno.estaPresionada('S'))
                 direccion = "ABAJO";
 
          
@@ -483,7 +553,7 @@ public class Juego extends InterfaceJuego {
                 boolean colision = false;
                 
                 // Recorremos los enemigos para comprobar si hubo un impacto
-                for (Enemigos e : listaEnemigos) {
+                for (Enemigos e : enemigos) {
 
                 	// Comprueba si hay impacto con el enemigo y recibe las coordeanadas
                     if (colision == false && hayColision(
@@ -537,6 +607,9 @@ public class Juego extends InterfaceJuego {
         entorno.escribirTexto("Vidas: " + rapi.getVida(), 700, 35);
         
         
+        entorno.cambiarFont("arial", 15, Color.BLACK, entorno.NEGRITA);
+        entorno.escribirTexto("Moverse con la teclas W A S D", 580 , 698);
+        
         //8. Dibuja el pedido en pantalla
         if (this.pedidos != null) {
         	this.pedidos.dibujarEncargo(entorno);
@@ -544,7 +617,8 @@ public class Juego extends InterfaceJuego {
         	
         	
         	entorno.cambiarFont("OCR A Extended", 15, Color.CYAN, entorno.NEGRITA);
-        	entorno.escribirTexto("Pedidos Entregados: " + this.totalPedidosEntregados, 135, 35);
+        	entorno.escribirTexto("Pedidos Entregados: " + this.totalPedidosEntregados, 135, 25);
+        	entorno.escribirTexto("Pedidos Perdidos: "+ this.totalPedidosPerdidos, 135, 45);
         	
         	
         	if (this.pedidos.perdido) {
@@ -571,7 +645,6 @@ public class Juego extends InterfaceJuego {
         }
  
     
-    
 
     // Método exclusivo para dibujar la pantalla de inicio
     private void dibujarPantallaInicio() {
@@ -588,18 +661,21 @@ public class Juego extends InterfaceJuego {
         entorno.cambiarFont("OCR A Extended", 22, Color.YELLOW, entorno.NEGRITA);
         entorno.escribirTexto("Presioná ENTER para comenzar", 200, 500);
     }
+    
     private void dibujarPantallaGameOver() {
+    		
         entorno.cambiarFont("OCR A Extended", 40, Color.RED, entorno.NEGRITA);
         entorno.escribirTexto("GAME OVER", 280, 250);
 
         entorno.cambiarFont("OCR A Extended", 22, Color.WHITE, entorno.NEGRITA);
-        entorno.escribirTexto("Te quedaste sin vidas", 270, 330);
+        entorno.escribirTexto("Perdiste, suerte la proxima", 270, 330);
 
         entorno.cambiarFont("OCR A Extended", 20, Color.YELLOW, entorno.NEGRITA);
         entorno.escribirTexto("Presioná 'R' para volver a intentar", 210, 430);
+    
     }
-    //PANTALLA DE VICTORIA
- // Pantalla de Victoria nueva
+    
+    // Pantalla de Victoria
     private void dibujarPantallaVictoria() {
         entorno.cambiarFont("OCR A Extended", 40, Color.GREEN, entorno.NEGRITA);
         entorno.escribirTexto("¡VICTORIA!", 290, 250);
@@ -608,12 +684,15 @@ public class Juego extends InterfaceJuego {
         entorno.escribirTexto("¡Entregaste 3 pedidos a tiempo!", 220, 330);
 
         entorno.cambiarFont("OCR A Extended", 20, Color.YELLOW, entorno.NEGRITA);
-        entorno.escribirTexto("Presioná 'S' para jugar de nuevo", 220, 430);
+        entorno.escribirTexto("Presioná 'J' para jugar de nuevo", 220, 430);
     }
+    
+    
     private void reiniciarJuego() {
         this.rapi = new Repartidor(750, 400, 20, 20, 3.5, 5);
         this.ticks = 0;
         this.totalPedidosEntregados = 0;
+        this.totalPedidosPerdidos = 0;
         this.enGameOver = false;
         this.enVictoria = false;
         sonidoFinalReproducido = false;
